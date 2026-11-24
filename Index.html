@@ -1,0 +1,2732 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JAWARA FKAM</title>
+
+  <style>
+    :root {
+      --navy: #123b70;
+      --navy-dark: #0d2e59;
+      --orange: #f28c28;
+      --bg: #f3f6fb;
+      --white: #ffffff;
+      --text: #24364b;
+      --muted: #718096;
+      --border: #e5eaf1;
+      --danger: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* LOGIN */
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 420px;
+      margin: 55px auto;
+      padding: 20px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .brand-logo {
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 14px;
+      border-radius: 18px;
+      background: var(--navy);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    .brand h1 {
+      font-size: 28px;
+      color: var(--navy);
+      letter-spacing: 2px;
+    }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 7px;
+    }
+
+    .login-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(20,45,80,.08);
+    }
+
+    .login-card h2 {
+      margin-bottom: 8px;
+      font-size: 22px;
+    }
+
+    .login-description {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d9e1ec;
+      border-radius: 9px;
+      outline: none;
+      background: white;
+    }
+
+    input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(18,59,112,.1);
+    }
+
+    .primary-button {
+      width: 100%;
+      border: none;
+      padding: 14px;
+      border-radius: 9px;
+      background: var(--navy);
+      color: white;
+      font-weight: bold;
+    }
+
+    .primary-button:hover {
+      background: var(--navy-dark);
+    }
+
+    .primary-button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: var(--danger);
+    }
+
+    .message.success {
+      display: block;
+      background: #ecfdf3;
+      color: #067647;
+    }
+
+    /* APPLICATION LAYOUT */
+
+    #appScreen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 245px;
+      background: var(--navy);
+      color: white;
+      padding: 24px 16px;
+      z-index: 20;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 8px 26px;
+      border-bottom: 1px solid rgba(255,255,255,.15);
+    }
+
+    .sidebar-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: white;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .sidebar-brand h2 {
+      font-size: 17px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-brand p {
+      font-size: 10px;
+      opacity: .75;
+      margin-top: 4px;
+    }
+
+    .menu-title {
+      font-size: 10px;
+      letter-spacing: 1.3px;
+      color: #bdcce0;
+      padding: 25px 10px 10px;
+    }
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .menu-item {
+      border: none;
+      background: transparent;
+      color: #e5edf7;
+      text-align: left;
+      padding: 12px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background: rgba(255,255,255,.16);
+      color: white;
+    }
+
+    .menu-item.logout {
+      color: #ffd1cc;
+      margin-top: 15px;
+    }
+
+    .main-area {
+      margin-left: 245px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 76px;
+      padding: 0 30px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .topbar-title h2 {
+      font-size: 19px;
+      color: var(--navy);
+    }
+
+    .topbar-title p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .user-info {
+      text-align: right;
+    }
+
+    .user-info strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .user-info span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 28px 30px;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    .welcome-section {
+      margin-bottom: 25px;
+    }
+
+    .welcome-section h1 {
+      font-size: 24px;
+      color: var(--navy);
+      margin-bottom: 7px;
+    }
+
+    .welcome-section p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* FILTER */
+
+    .filter-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+
+    .filter-heading {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .filter-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .preset-button {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .preset-button.active {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+    }
+
+    .filter-fields {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-field {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filter-field label {
+      font-size: 11px;
+    }
+
+    .filter-field input {
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-button {
+      border: none;
+      background: var(--navy);
+      color: white;
+      padding: 11px 17px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .reset-button {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      padding: 11px 15px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    /* SUMMARY CARDS */
+
+    .section-heading {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .summary-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 125px;
+    }
+
+    .summary-card .card-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 13px;
+    }
+
+    .summary-card .card-value {
+      color: var(--navy);
+      font-size: 23px;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-card .card-note {
+      color: #94a3b8;
+      font-size: 10px;
+      margin-top: 8px;
+    }
+
+    .dashboard-note {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .dashboard-note h3 {
+      color: var(--navy);
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .loading {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 15px 0;
+    }
+
+    .page-placeholder {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .page-placeholder h2 {
+      color: var(--navy);
+      margin-bottom: 10px;
+      font-size: 19px;
+    }
+
+    .footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+      padding: 25px 10px;
+    }
+
+    .mobile-menu-button {
+      display: none;
+      background: var(--navy);
+      color: white;
+      border: none;
+      padding: 9px 12px;
+      border-radius: 7px;
+    }
+
+    .sidebar-overlay {
+      display: none;
+    }
+
+    @media (max-width: 1050px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.35);
+        z-index: 15;
+      }
+
+      .main-area {
+        margin-left: 0;
+      }
+
+      .topbar {
+        height: 68px;
+        padding: 0 16px;
+      }
+
+      .mobile-menu-button {
+        display: block;
+      }
+
+      .topbar-title h2 {
+        font-size: 16px;
+      }
+
+      .topbar-title p {
+        font-size: 10px;
+      }
+
+      .user-info strong {
+        font-size: 11px;
+      }
+
+      .user-info span {
+        font-size: 10px;
+      }
+
+      .content {
+        padding: 22px 15px;
+      }
+
+      .welcome-section h1 {
+        font-size: 21px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .summary-card {
+        padding: 15px;
+        min-height: 112px;
+      }
+
+      .summary-card .card-value {
+        font-size: 19px;
+      }
+
+      .filter-card {
+        padding: 15px;
+      }
+
+      .filter-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filter-actions {
+        grid-column: 1 / -1;
+      }
+
+      .filter-actions button {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 370px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .user-info {
+        display: none;
+      }
+    }
+  
+/* ==========================================
+   MANAJEMEN USER
+========================================== */
+
+.user-management {
+  display: none;
+}
+
+.user-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.user-stat-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.user-stat-card p {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.user-stat-card h3 {
+  color: var(--navy);
+  font-size: 25px;
+}
+
+.user-table-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.user-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.user-table-header h3 {
+  font-size: 16px;
+  color: var(--navy);
+}
+
+.user-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.user-search {
+  flex: 1;
+  min-width: 180px;
+}
+
+.user-search input {
+  padding: 11px 13px;
+  font-size: 13px;
+}
+
+.add-user-button {
+  background: var(--navy);
+  color: white;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.add-user-button:hover {
+  background: var(--navy-dark);
+}
+
+.user-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+.user-table th {
+  background: #f5f7fb;
+  color: #64748b;
+  font-size: 11px;
+  text-align: left;
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-table td {
+  padding: 13px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-name {
+  font-weight: bold;
+  color: var(--text);
+}
+
+.user-email {
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.status-label {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.status-active {
+  background: #e8f8ef;
+  color: #167344;
+}
+
+.status-inactive {
+  background: #fff0ed;
+  color: #b42318;
+}
+
+.edit-user-button {
+  border: 1px solid #d6e1ef;
+  background: #f5f8fc;
+  color: var(--navy);
+  padding: 7px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.empty-user {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px !important;
+}
+
+.user-loading {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+/* MODAL FORM */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 30, 50, .55);
+  z-index: 100;
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.user-modal {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 15px 50px rgba(0,0,0,.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.modal-header h3 {
+  color: var(--navy);
+  font-size: 19px;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 25px;
+  color: var(--muted);
+}
+
+.modal-form-group {
+  margin-bottom: 16px;
+}
+
+.modal-form-group label {
+  font-size: 12px;
+}
+
+.modal-form-group input,
+.modal-form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  font-size: 13px;
+  background: white;
+}
+
+.modal-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.modal-form-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.modal-cancel {
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--text);
+}
+
+.modal-submit {
+  border: none;
+  background: var(--navy);
+  color: white;
+}
+
+.modal-submit:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.modal-message {
+  display: none;
+  margin-top: 12px;
+  padding: 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.modal-message.error {
+  display: block;
+  background: #fff0f0;
+  color: var(--danger);
+}
+
+.modal-message.success {
+  display: block;
+  background: #ecfdf3;
+  color: #067647;
+}
+
+@media (max-width: 700px) {
+  .user-stat-grid {
+    gap: 8px;
+  }
+
+  .user-stat-card {
+    padding: 13px;
+  }
+
+  .user-stat-card h3 {
+    font-size: 21px;
+  }
+
+  .user-stat-card p {
+    font-size: 10px;
+  }
+
+  .user-table-card {
+    padding: 14px;
+  }
+
+  .user-table-header {
+    align-items: flex-start;
+  }
+
+  .user-modal {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 370px) {
+  .user-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ==========================================
+   HALAMAN DATA DONASI
+========================================== */
+.donation-page { display: none; }
+.donation-filter-card,
+.donation-table-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.donation-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.donation-filter-field label { font-size: 12px; }
+.donation-filter-field input,
+.donation-filter-field select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+}
+.donation-filter-actions {
+  display: flex;
+  gap: 9px;
+  align-items: end;
+}
+.donation-filter-actions button {
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.donation-apply-button {
+  border: none;
+  background: var(--navy);
+  color: white;
+}
+.donation-reset-button {
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--text);
+}
+.donation-table-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.donation-table-heading h3 {
+  color: var(--navy);
+  font-size: 16px;
+}
+.donation-total { color: var(--muted); font-size: 12px; }
+.donation-table-wrap { width: 100%; overflow-x: auto; }
+.donation-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+.donation-table th {
+  background: #f5f7fb;
+  color: #64748b;
+  text-align: left;
+  padding: 13px 11px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.donation-table td {
+  padding: 13px 11px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.donation-table tr:last-child td { border-bottom: none; }
+.donation-detail-button {
+  border: 1px solid #d6e1ef;
+  background: #f5f8fc;
+  color: var(--navy);
+  padding: 7px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+.donation-status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+  background: #e8f8ef;
+  color: #167344;
+}
+.donation-status.cancelled {
+  background: #fff0ed;
+  color: #b42318;
+}
+.donation-loading,
+.donation-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 28px 12px;
+  font-size: 13px;
+}
+.donation-error {
+  margin-top: 12px;
+  color: var(--danger);
+  font-size: 12px;
+}
+.donation-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(15, 30, 50, .55);
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+}
+.donation-modal-overlay.show { display: flex; }
+.donation-modal {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 24px;
+}
+.donation-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.donation-modal-header h3 {
+  color: var(--navy);
+  font-size: 18px;
+}
+.donation-modal-close {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 25px;
+}
+.donation-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.donation-detail-item {
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.donation-detail-item.full { grid-column: 1 / -1; }
+.donation-detail-label {
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.donation-detail-value {
+  color: var(--text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.donation-proof-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: bold;
+}
+@media (max-width: 700px) {
+  .donation-filter-card,
+  .donation-table-card { padding: 14px; }
+  .donation-filter-grid { grid-template-columns: 1fr; }
+  .donation-filter-actions button { flex: 1; }
+  .donation-detail-grid { grid-template-columns: 1fr; }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <section id="loginScreen" class="login-wrapper">
+
+    <div class="brand">
+      <div class="brand-logo">JF</div>
+      <h1>JAWARA</h1>
+      <p>Jelajah Dakwah Nusantara FKAM</p>
+    </div>
+
+    <div class="login-card">
+      <h2>Selamat Datang</h2>
+
+      <p class="login-description">
+        Silakan masuk menggunakan akun yang telah
+        diberikan oleh administrator.
+      </p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Masukkan email"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Masukkan password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="primary-button"
+          id="loginButton"
+        >
+          MASUK KE APLIKASI
+        </button>
+      </form>
+
+      <div id="loginMessage" class="message"></div>
+    </div>
+
+    <div class="footer">
+      JAWARA FKAM<br>
+      Sistem Informasi Donasi dan Aktivitas Da'i<br>
+      © 2026 FKAM
+    </div>
+  </section>
+
+
+  <!-- APPLICATION SCREEN -->
+  <section id="appScreen">
+
+    <aside class="sidebar" id="sidebar">
+
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">JF</div>
+        <div>
+          <h2>JAWARA</h2>
+          <p>Jelajah Dakwah Nusantara</p>
+        </div>
+      </div>
+
+      <div class="menu-title">MENU UTAMA</div>
+      <nav class="menu-list" id="menuList"></nav>
+
+    </aside>
+
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="toggleSidebar(false)"
+    ></div>
+
+    <main class="main-area">
+
+      <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <button
+            class="mobile-menu-button"
+            onclick="toggleSidebar(true)"
+          >
+            ☰
+          </button>
+
+          <div class="topbar-title">
+            <h2 id="pageTitle">Dashboard</h2>
+            <p>JAWARA FKAM</p>
+          </div>
+        </div>
+
+        <div class="user-info">
+          <strong id="userName">Pengguna</strong>
+          <span id="userRole">USER</span>
+        </div>
+
+      </header>
+
+
+      <div class="content">
+
+        <!-- DASHBOARD PAGE -->
+        <section id="dashboardPage">
+
+          <div class="welcome-section">
+            <h1 id="welcomeTitle">Dashboard</h1>
+            <p id="welcomeDescription">
+              Ringkasan data aktivitas dakwah Anda.
+            </p>
+          </div>
+
+          <div class="filter-card">
+
+            <div class="filter-heading">
+              Filter Periode Data
+            </div>
+
+            <div class="filter-presets">
+              <button class="preset-button" data-period="today">
+                Hari Ini
+              </button>
+
+              <button class="preset-button" data-period="7days">
+                7 Hari
+              </button>
+
+              <button class="preset-button" data-period="month">
+                Bulan Ini
+              </button>
+
+              <button class="preset-button" data-period="lastmonth">
+                Bulan Lalu
+              </button>
+
+              <button class="preset-button" data-period="year">
+                Tahun Ini
+              </button>
+            </div>
+
+            <div class="filter-fields">
+
+              <div class="filter-field">
+                <label for="startDate">Dari Tanggal</label>
+                <input type="date" id="startDate">
+              </div>
+
+              <div class="filter-field">
+                <label for="endDate">Sampai Tanggal</label>
+                <input type="date" id="endDate">
+              </div>
+
+              <div class="filter-actions">
+                <button
+                  class="filter-button"
+                  onclick="applyDateFilter()"
+                >
+                  Terapkan
+                </button>
+
+                <button
+                  class="reset-button"
+                  onclick="resetDateFilter()"
+                >
+                  Reset
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <h3 class="section-heading">Ringkasan Aktivitas</h3>
+
+          <div id="dashboardLoading" class="loading">
+            Memuat data dashboard...
+          </div>
+
+          <div class="summary-grid" id="summaryGrid" style="display:none">
+
+            <div class="summary-card">
+              <div class="card-label">Total Donasi</div>
+              <div class="card-value" id="totalDonasi">Rp0</div>
+              <div class="card-note">Total nominal donasi</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="card-label">Transaksi Donasi</div>
+              <div class="card-value" id="jumlahTransaksi">0</div>
+              <div class="card-note">Transaksi tercatat</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="card-label">Total Kegiatan</div>
+              <div class="card-value" id="totalKegiatan">0</div>
+              <div class="card-note">Laporan kegiatan tercatat</div>
+            </div>
+
+            <div class="summary-card" id="cardDai">
+              <div class="card-label">Da'i Aktif</div>
+              <div class="card-value" id="jumlahDai">0</div>
+              <div class="card-note">Akun da'i aktif</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="card-label">Jumlah Donatur</div>
+              <div class="card-value" id="jumlahDonatur">0</div>
+              <div class="card-note">Donatur tercatat</div>
+            </div>
+
+          </div>
+
+          <div id="dashboardError" class="message"></div>
+
+          <div class="dashboard-note">
+            <h3>Informasi Dashboard</h3>
+            <p id="dashboardNote">
+              Data ditampilkan berdasarkan periode yang dipilih.
+            </p>
+          </div>
+
+        </section>
+
+
+       
+<!-- MANAJEMEN USER -->
+<section id="userManagementPage" class="user-management">
+
+  <div class="welcome-section">
+    <h1>Manajemen User</h1>
+    <p>Kelola akun da'i JAWARA FKAM.</p>
+  </div>
+
+  <div class="user-stat-grid">
+
+    <div class="user-stat-card">
+      <p>Total Da'i</p>
+      <h3 id="statTotalUser">0</h3>
+    </div>
+
+    <div class="user-stat-card">
+      <p>Da'i Aktif</p>
+      <h3 id="statActiveUser">0</h3>
+    </div>
+
+    <div class="user-stat-card">
+      <p>Da'i Nonaktif</p>
+      <h3 id="statInactiveUser">0</h3>
+    </div>
+
+  </div>
+
+  <div class="user-table-card">
+
+    <div class="user-table-header">
+      <h3>Daftar Akun Da'i</h3>
+    </div>
+
+    <div class="user-toolbar">
+
+      <div class="user-search">
+        <input
+          type="search"
+          id="userSearch"
+          placeholder="Cari nama atau email da'i..."
+          oninput="renderUserTable()"
+        >
+      </div>
+
+      <button
+        class="add-user-button"
+        onclick="openAddUserModal()"
+      >
+        + Tambah Da'i
+      </button>
+
+    </div>
+
+    <div id="userLoading" class="user-loading">
+      Memuat daftar da'i...
+    </div>
+
+    <div class="user-table-wrap" id="userTableWrap" style="display:none">
+
+      <table class="user-table">
+
+        <thead>
+          <tr>
+            <th>NO</th>
+            <th>NAMA DA'I</th>
+            <th>EMAIL</th>
+            <th>WHATSAPP</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+
+        <tbody id="userTableBody"></tbody>
+
+      </table>
+
+    </div>
+
+    <div id="userEmpty" class="empty-user" style="display:none">
+      Belum ada akun da'i yang terdaftar.
+    </div>
+
+    <div id="userError" class="message"></div>
+
+  </div>
+
+</section>
+
+<!-- HALAMAN DATA DONASI -->
+<section id="donationPage" class="donation-page">
+  <div class="welcome-section">
+    <h1>Data Donasi</h1>
+    <p>Kelola dan pantau seluruh transaksi donasi yang dihimpun da'i.</p>
+  </div>
+
+  <div class="donation-filter-card">
+    <div class="filter-heading">Filter Data Donasi</div>
+    <div class="donation-filter-grid">
+      <div class="donation-filter-field">
+        <label for="donationStartDate">Dari Tanggal</label>
+        <input type="date" id="donationStartDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="donationEndDate">Sampai Tanggal</label>
+        <input type="date" id="donationEndDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="donationTypeFilter">Jenis Donasi</label>
+        <select id="donationTypeFilter">
+          <option value="">Semua Jenis Donasi</option>
+        </select>
+      </div>
+      <div class="donation-filter-field">
+        <label for="donationSearch">Pencarian</label>
+        <input type="search" id="donationSearch"
+          placeholder="Nama donatur, nomor HP, atau nama da'i">
+      </div>
+      <div class="donation-filter-actions">
+        <button type="button" class="donation-apply-button"
+          onclick="loadDonations()">Terapkan Filter</button>
+        <button type="button" class="donation-reset-button"
+          onclick="resetDonationFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="donation-table-card">
+    <div class="donation-table-heading">
+      <h3>Daftar Transaksi Donasi</h3>
+      <div class="donation-total" id="donationTotal">0 transaksi</div>
+    </div>
+    <div id="donationLoading" class="donation-loading">Memuat data donasi...</div>
+    <div class="donation-table-wrap" id="donationTableWrap" style="display:none">
+      <table class="donation-table">
+        <thead>
+          <tr>
+            <th>NO</th><th>TANGGAL</th><th>NAMA DONATUR</th>
+            <th>JENIS DONASI</th><th>PROGRAM</th><th>NOMINAL</th>
+            <th>DA'I PENGHIMPUN</th><th>STATUS</th><th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody id="donationTableBody"></tbody>
+      </table>
+    </div>
+    <div id="donationEmpty" class="donation-empty" style="display:none">
+      Belum ada transaksi donasi.
+    </div>
+    <div id="donationError" class="donation-error"></div>
+  </div>
+</section>
+
+<!-- HALAMAN SEMENTARA UNTUK MENU LAIN -->
+<section id="otherPage" style="display:none">
+  <div class="page-placeholder">
+    <h2 id="otherPageTitle">Menu</h2>
+    <p id="otherPageDescription">
+      Fitur ini akan dibangun pada tahap berikutnya.
+    </p>
+  </div>
+</section>
+
+<!-- MODAL DETAIL DONASI -->
+<div class="donation-modal-overlay" id="donationDetailModal">
+  <div class="donation-modal">
+    <div class="donation-modal-header">
+      <h3>Detail Transaksi Donasi</h3>
+      <button type="button" class="donation-modal-close"
+        onclick="closeDonationDetail()">&times;</button>
+    </div>
+    <div class="donation-detail-grid" id="donationDetailContent"></div>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH / EDIT USER -->
+<div class="modal-overlay" id="userModal">
+
+  <div class="user-modal">
+
+    <div class="modal-header">
+      <h3 id="userModalTitle">Tambah Da'i</h3>
+
+      <button
+        type="button"
+        class="modal-close"
+        onclick="closeUserModal()"
+      >
+        &times;
+      </button>
+    </div>
+
+    <form id="userForm">
+
+      <input type="hidden" id="formUserId">
+
+      <div class="modal-form-group">
+        <label for="formNama">Nama Lengkap</label>
+        <input
+          type="text"
+          id="formNama"
+          placeholder="Masukkan nama lengkap"
+          required
+        >
+      </div>
+
+      <div class="modal-form-group">
+        <label for="formEmail">Email</label>
+        <input
+          type="email"
+          id="formEmail"
+          placeholder="Masukkan email"
+          required
+        >
+      </div>
+
+      <div class="modal-form-group">
+        <label for="formNoHp">Nomor WhatsApp</label>
+        <input
+          type="tel"
+          id="formNoHp"
+          placeholder="Contoh: 081234567890"
+        >
+      </div>
+
+      
+<div class="modal-form-group" id="passwordGroup">
+  <label for="formPassword" id="passwordLabel">
+    Password Awal
+  </label>
+
+  <input
+    type="password"
+    id="formPassword"
+    placeholder="Minimal 4 karakter"
+    minlength="4"
+    autocomplete="new-password"
+  >
+
+  <small id="passwordHelp" style="display:block;color:#718096;font-size:11px;margin-top:7px;line-height:1.5">
+    Password minimal 4 karakter.
+  </small>
+</div>
+
+
+      <div class="modal-form-group" id="statusGroup" style="display:none">
+        <label for="formStatus">Status Akun</label>
+        <select id="formStatus">
+          <option value="AKTIF">AKTIF</option>
+          <option value="NONAKTIF">NONAKTIF</option>
+        </select>
+      </div>
+
+      <div id="userModalMessage" class="modal-message"></div>
+
+      <div class="modal-form-actions">
+
+        <button
+          type="button"
+          class="modal-cancel"
+          onclick="closeUserModal()"
+        >
+          Batal
+        </button>
+
+        <button
+          type="submit"
+          class="modal-submit"
+          id="userSubmitButton"
+        >
+          Simpan
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+        <div class="footer">
+          JAWARA FKAM · Sistem Informasi Donasi dan Aktivitas Da'i
+        </div>
+
+      </div>
+    </main>
+  </section>
+
+
+  <script>
+    let currentUser = null;
+    let currentToken = null;
+
+    const loginScreen = document.getElementById("loginScreen");
+    const appScreen = document.getElementById("appScreen");
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const loginMessage = document.getElementById("loginMessage");
+
+    // ==========================================
+    // FORMAT DATA
+    // ==========================================
+
+    function formatRupiah(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(Number(value) || 0);
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("id-ID").format(
+        Number(value) || 0
+      );
+    }
+
+    function localDateString(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return year + "-" + month + "-" + day;
+    }
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
+
+    function showLoginMessage(text, type) {
+      loginMessage.textContent = text;
+      loginMessage.className = "message " + type;
+    }
+
+    loginForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = "MEMERIKSA AKUN...";
+      loginMessage.className = "message";
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+
+          loginButton.disabled = false;
+          loginButton.textContent = "MASUK KE APLIKASI";
+
+          if (!result || !result.success) {
+            showLoginMessage(
+              "Email atau password tidak sesuai.",
+              "error"
+            );
+            return;
+          }
+
+          currentToken = result.token;
+          sessionStorage.setItem("jawara_token", result.token);
+
+          enterApplication(result.user);
+        })
+        .withFailureHandler(function(error) {
+
+          loginButton.disabled = false;
+          loginButton.textContent = "MASUK KE APLIKASI";
+
+          showLoginMessage(
+            error.message || "Terjadi kesalahan saat login.",
+            "error"
+          );
+
+        })
+        .login(email, password);
+    });
+
+
+    // ==========================================
+    // SESSION / RESTORE LOGIN
+    // ==========================================
+
+    function restoreSession() {
+      const savedToken = sessionStorage.getItem("jawara_token");
+
+      if (!savedToken) return;
+
+      currentToken = savedToken;
+
+      google.script.run
+        .withSuccessHandler(function(user) {
+          if (!user || !user.user_id) {
+            clearLocalSession();
+            return;
+          }
+
+          enterApplication(user);
+        })
+        .withFailureHandler(function() {
+          clearLocalSession();
+        })
+        .validateSession(savedToken);
+    }
+
+    function clearLocalSession() {
+      sessionStorage.removeItem("jawara_token");
+      currentToken = null;
+      currentUser = null;
+      loginScreen.style.display = "block";
+      appScreen.style.display = "none";
+    }
+
+
+    // ==========================================
+    // OPEN APPLICATION
+    // ==========================================
+
+    function enterApplication(user) {
+      currentUser = user;
+
+      loginScreen.style.display = "none";
+      appScreen.style.display = "block";
+
+      document.getElementById("userName").textContent =
+        user.nama || "Pengguna";
+
+      document.getElementById("userRole").textContent =
+        user.role || "USER";
+
+      document.getElementById("welcomeTitle").textContent =
+        "Selamat Datang, " + (user.nama || "Pengguna");
+
+      document.getElementById("welcomeDescription").textContent =
+        user.role === "ADMIN"
+          ? "Pantau seluruh data donasi dan aktivitas dakwah."
+          : "Pantau catatan donasi dan aktivitas dakwah Anda.";
+
+      buildMenu();
+      showPage("Dashboard");
+      loadDashboard({});
+    }
+
+
+    // ==========================================
+    // MENU BERDASARKAN ROLE
+    // ==========================================
+
+    function buildMenu() {
+      const menuList = document.getElementById("menuList");
+      menuList.innerHTML = "";
+
+      let menus = [];
+
+      if (currentUser.role === "ADMIN") {
+        menus = [
+          "Dashboard",
+          "Data Donasi",
+          "Data Kegiatan",
+          "Manajemen User",
+          
+        ];
+      } else {
+        menus = [
+          "Dashboard",
+          "Entry Donasi",
+          "History Donasi",
+          "Entry Laporan Kegiatan",
+          "History Kegiatan"
+        ];
+      }
+
+      menus.forEach(function(menu) {
+        const button = document.createElement("button");
+
+        button.className = "menu-item";
+        button.textContent = menu;
+
+        button.addEventListener("click", function() {
+          showPage(menu);
+          toggleSidebar(false);
+        });
+
+        menuList.appendChild(button);
+      });
+
+      const logoutButton = document.createElement("button");
+      logoutButton.className = "menu-item logout";
+      logoutButton.textContent = "Keluar";
+      logoutButton.addEventListener("click", logoutUser);
+
+      menuList.appendChild(logoutButton);
+    }
+
+
+    // ==========================================
+    // NAVIGATION
+    // ==========================================
+
+    
+function showPage(pageName) {
+  const isDashboard = pageName === "Dashboard";
+  const isUserManagement = pageName === "Manajemen User";
+  const isDonationPage = pageName === "Data Donasi";
+
+  document.getElementById("pageTitle").textContent = pageName;
+  document.getElementById("dashboardPage").style.display =
+    isDashboard ? "block" : "none";
+  document.getElementById("userManagementPage").style.display =
+    isUserManagement ? "block" : "none";
+  document.getElementById("donationPage").style.display =
+    isDonationPage ? "block" : "none";
+  document.getElementById("otherPage").style.display =
+    (!isDashboard && !isUserManagement && !isDonationPage)
+      ? "block" : "none";
+
+  document.getElementById("otherPageTitle").textContent = pageName;
+  document.getElementById("otherPageDescription").textContent =
+    "Menu " + pageName +
+    " akan dikembangkan dan dihubungkan dengan database pada tahap berikutnya.";
+
+  document.querySelectorAll(".menu-item").forEach(function(item) {
+    item.classList.toggle("active", item.textContent === pageName);
+  });
+
+  if (isUserManagement) loadUsers();
+  if (isDonationPage) loadDonations();
+}
+
+    // ==========================================
+    // LOAD DASHBOARD DATA
+    // ==========================================
+
+    function loadDashboard(filters) {
+      if (!currentToken) return;
+
+      const loading = document.getElementById("dashboardLoading");
+      const grid = document.getElementById("summaryGrid");
+      const errorBox = document.getElementById("dashboardError");
+
+      loading.style.display = "block";
+      loading.textContent = "Memuat data dashboard...";
+      grid.style.display = "none";
+      errorBox.className = "message";
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+
+          loading.style.display = "none";
+
+          if (!result || !result.success) {
+            errorBox.textContent = "Data dashboard tidak dapat dimuat.";
+            errorBox.className = "message error";
+            return;
+          }
+
+          renderDashboard(result);
+        })
+        .withFailureHandler(function(error) {
+
+          loading.style.display = "none";
+
+          errorBox.textContent =
+            error.message || "Gagal mengambil data dashboard.";
+
+          errorBox.className = "message error";
+        })
+        .getDashboardData(currentToken, filters || {});
+    }
+
+
+    // ==========================================
+    // RENDER DASHBOARD
+    // ==========================================
+
+    function renderDashboard(result) {
+      const data = result.summary;
+
+      document.getElementById("totalDonasi").textContent =
+        formatRupiah(data.total_donasi);
+
+      document.getElementById("jumlahTransaksi").textContent =
+        formatNumber(data.jumlah_transaksi);
+
+      document.getElementById("totalKegiatan").textContent =
+        formatNumber(data.total_kegiatan);
+
+      document.getElementById("jumlahDonatur").textContent =
+        formatNumber(data.jumlah_donatur);
+
+      const daiCard = document.getElementById("cardDai");
+
+      if (result.user.role === "ADMIN") {
+        daiCard.style.display = "block";
+
+        document.getElementById("jumlahDai").textContent =
+          formatNumber(data.jumlah_dai_aktif);
+      } else {
+        daiCard.style.display = "none";
+      }
+
+      document.getElementById("dashboardNote").textContent =
+        result.user.role === "ADMIN"
+          ? "Ringkasan ini menampilkan data seluruh da'i berdasarkan periode tanggal yang dipilih."
+          : "Ringkasan ini hanya menampilkan data donasi dan kegiatan milik akun Anda.";
+
+      document.getElementById("summaryGrid").style.display = "grid";
+    }
+
+
+    // ==========================================
+    // DATE FILTER
+    // ==========================================
+
+    function setDateRange(start, end) {
+      document.getElementById("startDate").value =
+        localDateString(start);
+
+      document.getElementById("endDate").value =
+        localDateString(end);
+
+      document.querySelectorAll(".preset-button").forEach(function(button) {
+        button.classList.remove("active");
+      });
+
+      loadDashboard({
+        startDate: localDateString(start),
+        endDate: localDateString(end)
+      });
+    }
+
+    document.querySelectorAll(".preset-button").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const period = button.dataset.period;
+        const today = new Date();
+
+        let start = new Date(today);
+        let end = new Date(today);
+
+        if (period === "7days") {
+          start.setDate(today.getDate() - 6);
+        }
+
+        if (period === "month") {
+          start = new Date(today.getFullYear(), today.getMonth(), 1);
+        }
+
+        if (period === "lastmonth") {
+          start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          end = new Date(today.getFullYear(), today.getMonth(), 0);
+        }
+
+        if (period === "year") {
+          start = new Date(today.getFullYear(), 0, 1);
+        }
+
+        button.parentElement.querySelectorAll("button").forEach(function(item) {
+          item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        document.getElementById("startDate").value =
+          localDateString(start);
+
+        document.getElementById("endDate").value =
+          localDateString(end);
+
+        loadDashboard({
+          startDate: localDateString(start),
+          endDate: localDateString(end)
+        });
+      });
+    });
+
+    function applyDateFilter() {
+      const start = document.getElementById("startDate").value;
+      const end = document.getElementById("endDate").value;
+
+      if (start && end && start > end) {
+        alert("Tanggal awal tidak boleh melewati tanggal akhir.");
+        return;
+      }
+
+      document.querySelectorAll(".preset-button").forEach(function(button) {
+        button.classList.remove("active");
+      });
+
+      loadDashboard({
+        startDate: start,
+        endDate: end
+      });
+    }
+
+    function resetDateFilter() {
+      document.getElementById("startDate").value = "";
+      document.getElementById("endDate").value = "";
+
+      document.querySelectorAll(".preset-button").forEach(function(button) {
+        button.classList.remove("active");
+      });
+
+      loadDashboard({});
+    }
+
+
+    // ==========================================
+    // SIDEBAR MOBILE
+    // ==========================================
+
+    function toggleSidebar(open) {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebarOverlay");
+
+      sidebar.classList.toggle("open", open);
+      overlay.classList.toggle("show", open);
+    }
+
+
+    // ==========================================
+    // LOGOUT
+    // ==========================================
+
+    function logoutUser() {
+      if (!currentToken) {
+        clearLocalSession();
+        return;
+      }
+
+      const token = currentToken;
+
+      google.script.run
+        .withSuccessHandler(function() {
+          clearLocalSession();
+        })
+        .withFailureHandler(function(error) {
+          alert(
+            error.message ||
+            "Logout gagal. Silakan coba kembali."
+          );
+        })
+        .logout(token);
+    }
+
+
+// ==========================================
+// MANAJEMEN USER
+// ==========================================
+
+let userList = [];
+let userFormMode = "ADD";
+
+function loadUsers() {
+  if (!currentToken || !currentUser ||
+      currentUser.role !== "ADMIN") {
+    return;
+  }
+
+  const loading = document.getElementById("userLoading");
+  const tableWrap = document.getElementById("userTableWrap");
+  const empty = document.getElementById("userEmpty");
+  const error = document.getElementById("userError");
+
+  loading.style.display = "block";
+  loading.textContent = "Memuat daftar da'i...";
+  tableWrap.style.display = "none";
+  empty.style.display = "none";
+  error.className = "message";
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      userList = Array.isArray(result) ? result : [];
+
+      loading.style.display = "none";
+
+      updateUserStatistics();
+      renderUserTable();
+    })
+    .withFailureHandler(function(err) {
+      loading.style.display = "none";
+      error.textContent =
+        err.message || "Gagal mengambil data pengguna.";
+      error.className = "message error";
+    })
+    .getUsers(currentToken);
+}
+
+
+function updateUserStatistics() {
+  const total = userList.length;
+
+  const active = userList.filter(function(user) {
+    return user.status === "AKTIF";
+  }).length;
+
+  const inactive = userList.filter(function(user) {
+    return user.status === "NONAKTIF";
+  }).length;
+
+  document.getElementById("statTotalUser").textContent =
+    formatNumber(total);
+
+  document.getElementById("statActiveUser").textContent =
+    formatNumber(active);
+
+  document.getElementById("statInactiveUser").textContent =
+    formatNumber(inactive);
+}
+
+
+function renderUserTable() {
+  const keyword = (
+    document.getElementById("userSearch").value || ""
+  ).trim().toLowerCase();
+
+  const filtered = userList.filter(function(user) {
+    return (
+      String(user.nama || "").toLowerCase().includes(keyword) ||
+      String(user.email || "").toLowerCase().includes(keyword)
+    );
+  });
+
+  const body = document.getElementById("userTableBody");
+  const tableWrap = document.getElementById("userTableWrap");
+  const empty = document.getElementById("userEmpty");
+
+  body.innerHTML = "";
+
+  if (filtered.length === 0) {
+    tableWrap.style.display = "none";
+    empty.style.display = "block";
+
+    empty.textContent = userList.length === 0
+      ? "Belum ada akun da'i yang terdaftar."
+      : "Tidak ditemukan akun yang sesuai pencarian.";
+
+    return;
+  }
+
+  empty.style.display = "none";
+  tableWrap.style.display = "block";
+
+  filtered.forEach(function(user, index) {
+    const tr = document.createElement("tr");
+
+    const tdNo = document.createElement("td");
+    tdNo.textContent = index + 1;
+
+    const tdName = document.createElement("td");
+    const name = document.createElement("div");
+    name.className = "user-name";
+    name.textContent = user.nama || "-";
+    tdName.appendChild(name);
+
+    const tdEmail = document.createElement("td");
+    tdEmail.textContent = user.email || "-";
+
+    const tdPhone = document.createElement("td");
+    tdPhone.textContent = user.no_hp || "-";
+
+    const tdStatus = document.createElement("td");
+    const status = document.createElement("span");
+
+    status.className = user.status === "AKTIF"
+      ? "status-label status-active"
+      : "status-label status-inactive";
+
+    status.textContent = user.status || "-";
+    tdStatus.appendChild(status);
+
+    const tdAction = document.createElement("td");
+    const editButton = document.createElement("button");
+
+    editButton.type = "button";
+    editButton.className = "edit-user-button";
+    editButton.textContent = "Edit";
+
+    editButton.addEventListener("click", function() {
+      openEditUserModal(user.user_id);
+    });
+
+    tdAction.appendChild(editButton);
+
+    tr.appendChild(tdNo);
+    tr.appendChild(tdName);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdPhone);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdAction);
+
+    body.appendChild(tr);
+  });
+}
+
+
+// ==========================================
+// MODAL TAMBAH USER
+// ==========================================
+
+
+function openAddUserModal() {
+  userFormMode = "ADD";
+
+  document.getElementById("userForm").reset();
+  document.getElementById("formUserId").value = "";
+
+  document.getElementById("userModalTitle").textContent =
+    "Tambah Akun Da'i";
+
+  document.getElementById("passwordGroup").style.display = "block";
+  document.getElementById("statusGroup").style.display = "none";
+
+  document.getElementById("passwordLabel").textContent =
+    "Password Awal";
+
+  document.getElementById("passwordHelp").textContent =
+    "Password untuk akun baru, minimal 4 karakter.";
+
+  document.getElementById("formPassword").required = true;
+  document.getElementById("formPassword").value = "";
+
+  document.getElementById("userSubmitButton").textContent =
+    "Buat Akun";
+
+  document.getElementById("userModalMessage").className =
+    "modal-message";
+
+  document.getElementById("userModal").classList.add("show");
+}
+
+
+
+// ==========================================
+// MODAL EDIT USER
+// ==========================================
+
+
+function openEditUserModal(userId) {
+  const user = userList.find(function(item) {
+    return String(item.user_id) === String(userId);
+  });
+
+  if (!user) {
+    alert("Data da'i tidak ditemukan.");
+    return;
+  }
+
+  userFormMode = "EDIT";
+
+  document.getElementById("userForm").reset();
+
+  document.getElementById("formUserId").value = user.user_id;
+  document.getElementById("formNama").value = user.nama || "";
+  document.getElementById("formEmail").value = user.email || "";
+  document.getElementById("formNoHp").value = user.no_hp || "";
+
+  document.getElementById("formStatus").value =
+    user.status || "AKTIF";
+
+  document.getElementById("userModalTitle").textContent =
+    "Edit Data Da'i";
+
+  document.getElementById("passwordGroup").style.display = "block";
+
+  document.getElementById("passwordLabel").textContent =
+    "Password Baru (Opsional)";
+
+  document.getElementById("passwordHelp").textContent =
+    "Isi jika ingin mengganti password da'i. Kosongkan jika tidak ingin mengubahnya.";
+
+  document.getElementById("formPassword").required = false;
+  document.getElementById("formPassword").value = "";
+
+  document.getElementById("statusGroup").style.display = "block";
+
+  document.getElementById("userSubmitButton").textContent =
+    "Simpan Perubahan";
+
+  document.getElementById("userModalMessage").className =
+    "modal-message";
+
+  document.getElementById("userModal").classList.add("show");
+}
+
+
+
+function closeUserModal() {
+  document.getElementById("userModal").classList.remove("show");
+}
+
+
+// ==========================================
+// SIMPAN TAMBAH / EDIT USER
+// ==========================================
+
+document.getElementById("userForm").addEventListener(
+  "submit",
+  function(event) {
+    event.preventDefault();
+
+    if (!currentToken || !currentUser ||
+        currentUser.role !== "ADMIN") {
+      alert("Akses ditolak. Khusus admin.");
+      return;
+    }
+
+    const nama = document.getElementById("formNama").value.trim();
+    const email = document.getElementById("formEmail").value.trim();
+    const noHp = document.getElementById("formNoHp").value.trim();
+
+    const button = document.getElementById("userSubmitButton");
+    const message = document.getElementById("userModalMessage");
+
+    const payload = {
+      nama: nama,
+      email: email,
+      no_hp: noHp
+    };
+
+    if (!nama || !email) {
+      message.textContent = "Nama dan email wajib diisi.";
+      message.className = "modal-message error";
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Menyimpan...";
+
+    message.className = "modal-message";
+
+    if (userFormMode === "ADD") {
+      const password =
+        document.getElementById("formPassword").value;
+
+      if (password.length < 4) {
+        button.disabled = false;
+        button.textContent = "Buat Akun";
+
+        message.textContent =
+          "Password minimal 4 karakter.";
+
+        message.className = "modal-message error";
+        return;
+      }
+
+      payload.password = password;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          button.disabled = false;
+          button.textContent = "Buat Akun";
+
+          message.textContent =
+            result.message || "Akun da'i berhasil dibuat.";
+
+          message.className = "modal-message success";
+
+          document.getElementById("userForm").reset();
+
+          loadUsers();
+
+          setTimeout(function() {
+            closeUserModal();
+          }, 900);
+        })
+        .withFailureHandler(function(err) {
+          button.disabled = false;
+          button.textContent = "Buat Akun";
+
+          message.textContent =
+            err.message || "Gagal membuat akun.";
+
+          message.className = "modal-message error";
+        })
+        .createUser(currentToken, payload);
+
+    
+    } else {
+      payload.user_id =
+        document.getElementById("formUserId").value;
+
+      payload.status =
+        document.getElementById("formStatus").value;
+
+      // Ambil password baru.
+      const newPassword =
+        document.getElementById("formPassword").value;
+
+      // Validasi jika password diisi.
+      if (newPassword && newPassword.length < 4) {
+        button.disabled = false;
+        button.textContent = "Simpan Perubahan";
+
+        message.textContent =
+          "Password baru minimal 4 karakter.";
+
+        message.className = "modal-message error";
+        return;
+      }
+
+      // Kirim password hanya jika kolom diisi.
+      if (newPassword) {
+        payload.password = newPassword;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          button.disabled = false;
+          button.textContent = "Simpan Perubahan";
+
+          message.textContent =
+            result.message || "Data da'i berhasil diperbarui.";
+
+          message.className = "modal-message success";
+
+          loadUsers();
+
+          setTimeout(function() {
+            closeUserModal();
+          }, 900);
+        })
+        .withFailureHandler(function(err) {
+          button.disabled = false;
+          button.textContent = "Simpan Perubahan";
+
+          message.textContent =
+            err.message || "Gagal memperbarui data.";
+
+          message.className = "modal-message error";
+        })
+        .editUser(currentToken, payload);
+    }
+  }
+);
+
+
+// ==========================================
+// MODUL DATA DONASI
+// ==========================================
+
+let donationList = [];
+
+function loadDonations() {
+  if (!currentToken || !currentUser || currentUser.role !== "ADMIN") return;
+
+  const loading = document.getElementById("donationLoading");
+  const tableWrap = document.getElementById("donationTableWrap");
+  const empty = document.getElementById("donationEmpty");
+  const error = document.getElementById("donationError");
+
+  loading.style.display = "block";
+  loading.textContent = "Memuat data donasi...";
+  tableWrap.style.display = "none";
+  empty.style.display = "none";
+  error.textContent = "";
+
+  const filters = {
+    startDate: document.getElementById("donationStartDate").value,
+    endDate: document.getElementById("donationEndDate").value,
+    jenisDonasiId: document.getElementById("donationTypeFilter").value,
+    search: document.getElementById("donationSearch").value.trim()
+  };
+
+  if (filters.startDate && filters.endDate &&
+      filters.startDate > filters.endDate) {
+    loading.style.display = "none";
+    error.textContent = "Tanggal awal tidak boleh melebihi tanggal akhir.";
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      loading.style.display = "none";
+
+      if (!result || !result.success) {
+        error.textContent = "Data donasi tidak dapat dimuat.";
+        return;
+      }
+
+      donationList = Array.isArray(result.data) ? result.data : [];
+      renderDonationTypeOptions(
+        result.master ? result.master.jenis_donasi : []
+      );
+      renderDonationTable();
+    })
+    .withFailureHandler(function(err) {
+      loading.style.display = "none";
+      error.textContent = err.message || "Gagal mengambil data donasi.";
+    })
+    .getDonations(currentToken, filters);
+}
+
+function renderDonationTypeOptions(items) {
+  const select = document.getElementById("donationTypeFilter");
+  const selectedValue = select.value;
+
+  select.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Semua Jenis Donasi";
+  select.appendChild(defaultOption);
+
+  (items || []).forEach(function(item) {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = item.nama;
+    select.appendChild(option);
+  });
+
+  select.value = selectedValue;
+}
+
+function renderDonationTable() {
+  const body = document.getElementById("donationTableBody");
+  const tableWrap = document.getElementById("donationTableWrap");
+  const empty = document.getElementById("donationEmpty");
+  const total = document.getElementById("donationTotal");
+
+  body.innerHTML = "";
+  total.textContent = formatNumber(donationList.length) + " transaksi";
+
+  if (donationList.length === 0) {
+    tableWrap.style.display = "none";
+    empty.style.display = "block";
+    empty.textContent = "Tidak ada transaksi donasi yang sesuai dengan filter.";
+    return;
+  }
+
+  empty.style.display = "none";
+  tableWrap.style.display = "block";
+
+  donationList.forEach(function(item, index) {
+    const tr = document.createElement("tr");
+    const values = [
+      index + 1,
+      formatDonationDateForDisplay(item.tanggal_donasi),
+      item.nama_donatur || "-",
+      item.jenis_donasi || "-",
+      item.nama_program || "-",
+      formatRupiah(item.nominal),
+      item.nama_dai || "-"
+    ];
+
+    values.forEach(function(value) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    const tdStatus = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = "donation-status";
+    if (String(item.status_transaksi).toUpperCase() === "DIBATALKAN") {
+      status.classList.add("cancelled");
+    }
+    status.textContent = item.status_transaksi || "BELUM DITENTUKAN";
+    tdStatus.appendChild(status);
+    tr.appendChild(tdStatus);
+
+    const tdAction = document.createElement("td");
+    const detailButton = document.createElement("button");
+    detailButton.type = "button";
+    detailButton.className = "donation-detail-button";
+    detailButton.textContent = "Detail";
+    detailButton.addEventListener("click", function() {
+      showDonationDetail(item.donasi_id);
+    });
+    tdAction.appendChild(detailButton);
+    tr.appendChild(tdAction);
+
+    body.appendChild(tr);
+  });
+}
+
+function formatDonationDateForDisplay(value) {
+  if (!value) return "-";
+  const text = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    const parts = text.split("-");
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
+  }
+  return text;
+}
+
+function showDonationDetail(donationId) {
+  const item = donationList.find(function(row) {
+    return String(row.donasi_id) === String(donationId);
+  });
+
+  if (!item) {
+    alert("Data transaksi tidak ditemukan.");
+    return;
+  }
+
+  const content = document.getElementById("donationDetailContent");
+  content.innerHTML = "";
+
+  addDonationDetailItem(content, "ID Transaksi", item.donasi_id);
+  addDonationDetailItem(content, "Tanggal Donasi",
+    formatDonationDateForDisplay(item.tanggal_donasi));
+  addDonationDetailItem(content, "Waktu Input", item.waktu_input);
+  addDonationDetailItem(content, "Nama Donatur", item.nama_donatur);
+  addDonationDetailItem(content, "Nomor WhatsApp", item.no_hp);
+  addDonationDetailItem(content, "Jenis Donatur", item.jenis_donatur);
+  addDonationDetailItem(content, "Jenis Donasi", item.jenis_donasi);
+  addDonationDetailItem(content, "Program", item.nama_program);
+  addDonationDetailItem(content, "Nominal", formatRupiah(item.nominal));
+  addDonationDetailItem(content, "Metode Pembayaran", item.metode);
+  addDonationDetailItem(content, "Da'i Penghimpun", item.nama_dai);
+  addDonationDetailItem(content, "Status Transaksi", item.status_transaksi);
+  addDonationDetailItem(content, "Keterangan", item.keterangan, true);
+
+  if (item.status_transaksi === "DIBATALKAN") {
+    addDonationDetailItem(content, "Alasan Pembatalan", item.cancel_reason, true);
+    addDonationDetailItem(content, "Waktu Pembatalan", item.cancelled_at, true);
+  }
+
+  if (item.bukti_donasi_file_id) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "donation-detail-item full";
+
+    const label = document.createElement("div");
+    label.className = "donation-detail-label";
+    label.textContent = "Bukti Donasi";
+
+    const link = document.createElement("a");
+    link.className = "donation-proof-link";
+    link.textContent = "Buka Bukti Donasi";
+    link.href = "https://drive.google.com/open?id=" +
+      encodeURIComponent(item.bukti_donasi_file_id);
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(link);
+    content.appendChild(wrapper);
+  } else {
+    addDonationDetailItem(content, "Bukti Donasi",
+      "Tidak ada bukti donasi yang dilampirkan", true);
+  }
+
+  document.getElementById("donationDetailModal").classList.add("show");
+}
+
+function addDonationDetailItem(container, labelText, value, fullWidth) {
+  const wrapper = document.createElement("div");
+  wrapper.className = fullWidth
+    ? "donation-detail-item full" : "donation-detail-item";
+
+  const label = document.createElement("div");
+  label.className = "donation-detail-label";
+  label.textContent = labelText;
+
+  const valueElement = document.createElement("div");
+  valueElement.className = "donation-detail-value";
+  valueElement.textContent =
+    value === null || value === undefined || value === ""
+      ? "-" : String(value);
+
+  wrapper.appendChild(label);
+  wrapper.appendChild(valueElement);
+  container.appendChild(wrapper);
+}
+
+function closeDonationDetail() {
+  document.getElementById("donationDetailModal").classList.remove("show");
+}
+
+function resetDonationFilters() {
+  document.getElementById("donationStartDate").value = "";
+  document.getElementById("donationEndDate").value = "";
+  document.getElementById("donationTypeFilter").value = "";
+  document.getElementById("donationSearch").value = "";
+  loadDonations();
+}
+
+    // ==========================================
+    // START APPLICATION
+    // ==========================================
+
+    restoreSession();
+
+  </script>
+
+</body>
+</html>
