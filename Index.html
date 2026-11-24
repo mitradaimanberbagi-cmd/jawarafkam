@@ -919,7 +919,7 @@
 
 
 /* ==========================================
-   HALAMAN DATA DONASI
+   HALAMAN DATA DONASI, HISTORY DONASI, DATA KEGIATAN & HISTORY KEGIATAN
 ========================================== */
 .donation-page { display: none; }
 .donation-filter-card,
@@ -1108,9 +1108,10 @@
   
 
 /* ==========================================
-   ENTRY DONASI USER
+   ENTRY DONASI & ENTRY LAPORAN KEGIATAN USER
 ========================================== */
-.donation-entry-page { display:none; }
+.donation-entry-page,
+.activity-entry-page { display:none; }
 .entry-form-card {
   background:#fff; border:1px solid var(--border); border-radius:12px;
   padding:24px; max-width:950px;
@@ -1151,12 +1152,94 @@
 }
 .entry-message.error { display:block; background:#fff0f0; color:var(--danger); }
 .entry-message.success { display:block; background:#ecfdf3; color:#067647; }
+
+/* PREVIEW FOTO KEGIATAN */
+.activity-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.activity-photo-item {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+  aspect-ratio: 1 / 1;
+}
+.activity-photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.activity-photo-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(18, 59, 112, 0.88);
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.activity-photo-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(180, 35, 24, 0.92);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* GALERI FOTO DI MODAL DETAIL KEGIATAN */
+.activity-detail-photos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.activity-detail-photo-link {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  background: #f8fafc;
+}
+.activity-detail-photo-link img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+}
+.activity-detail-photo-link span {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--navy);
+  padding: 6px 4px;
+}
+
 @media(max-width:700px) {
   .entry-form-card { padding:16px; }
   .entry-form-grid { grid-template-columns:1fr; gap:14px; }
   .entry-form-group.full { grid-column:auto; }
   .entry-form-actions { flex-direction:column-reverse; }
   .entry-form-actions button { width:100%; }
+  .activity-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .activity-detail-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 
@@ -1768,6 +1851,294 @@
   </div>
 </section>
 
+<!-- HALAMAN ENTRY LAPORAN KEGIATAN USER -->
+<section id="activityEntryPage" class="activity-entry-page">
+  <div class="welcome-section">
+    <h1>Entry Laporan Kegiatan</h1>
+    <p>Laporkan aktivitas dakwah, silaturahmi tokoh/lembaga, dan dokumentasi foto lapangan.</p>
+  </div>
+
+  <div class="entry-form-card">
+    <form id="activityEntryForm">
+      <div class="entry-form-grid">
+        <div class="entry-form-group">
+          <label for="entryActivityDate">Tanggal Kegiatan *</label>
+          <input type="date" id="entryActivityDate" required>
+        </div>
+
+        <div class="entry-form-group">
+          <label for="entryActivityCategory">Kategori Kegiatan *</label>
+          <select id="entryActivityCategory" required>
+            <option value="">Memuat kategori kegiatan...</option>
+          </select>
+        </div>
+
+        <div class="entry-form-group">
+          <label for="entryActivityParty">Nama Pihak / Tokoh / Lembaga *</label>
+          <input type="text" id="entryActivityParty" maxlength="150"
+            placeholder="Contoh: Takmir Masjid Al-Ikhlas / Ustadz Ahmad" required>
+        </div>
+
+        <div class="entry-form-group">
+          <label for="entryActivityPhone">Nomor HP / WhatsApp Kontak</label>
+          <input type="tel" id="entryActivityPhone" maxlength="25"
+            placeholder="Contoh: 081234567890">
+        </div>
+
+        <div class="entry-form-group full">
+          <label for="entryActivityLocation">Lokasi Kegiatan *</label>
+          <input type="text" id="entryActivityLocation" maxlength="250"
+            placeholder="Nama tempat, desa/kelurahan, kecamatan, kabupaten/kota" required>
+        </div>
+
+        <div class="entry-form-group full">
+          <label for="entryActivityNarrative">Narasi Kegiatan *</label>
+          <textarea id="entryActivityNarrative"
+            placeholder="Ceritakan jalannya kegiatan dakwah, poin pembahasan, dan respon masyarakat/pihak terkait..." required></textarea>
+        </div>
+
+        <div class="entry-form-group">
+          <label for="entryActivityFollowup">Rencana Tindak Lanjut</label>
+          <input type="text" id="entryActivityFollowup" maxlength="250"
+            placeholder="Contoh: Kunjungan lanjutan / koordinasi program">
+        </div>
+
+        <div class="entry-form-group">
+          <label for="entryActivityFollowupDate">Tanggal Follow-up</label>
+          <input type="date" id="entryActivityFollowupDate">
+        </div>
+
+        <div class="entry-form-group full">
+          <label for="entryActivityPhotos">Upload Foto Kegiatan (Minimal 2, Maksimal 5 Foto) *</label>
+          <input type="file" id="entryActivityPhotos" accept="image/jpeg,image/png,image/webp" multiple>
+          <div class="entry-form-help" id="activityPhotoCounter">
+            Belum ada foto dipilih (0/5 foto · minimal 2 foto). Format: JPG, PNG, atau WEBP. Maksimal 5 MB per foto.
+          </div>
+          <div id="activityPhotoPreviewGrid" class="activity-photo-grid" style="display:none"></div>
+        </div>
+      </div>
+
+      <div id="activityEntryMessage" class="entry-message"></div>
+
+      <div class="entry-form-actions">
+        <button type="button" class="entry-reset-button" id="resetActivityEntryButton">
+          Kosongkan Formulir
+        </button>
+        <button type="submit" class="entry-submit-button" id="submitActivityEntryButton">
+          Simpan Laporan Kegiatan
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- HALAMAN DATA KEGIATAN ADMIN -->
+<section id="adminActivityPage" class="donation-page">
+  <div class="welcome-section">
+    <h1>Data Kegiatan</h1>
+    <p>Pantau seluruh laporan aktivitas dakwah dan dokumentasi foto para da'i.</p>
+  </div>
+
+  <div class="donation-filter-card">
+    <div class="filter-heading">Filter Data Kegiatan</div>
+    <div class="donation-filter-grid">
+      <div class="donation-filter-field">
+        <label for="adminActStartDate">Dari Tanggal</label>
+        <input type="date" id="adminActStartDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="adminActEndDate">Sampai Tanggal</label>
+        <input type="date" id="adminActEndDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="adminActCategoryFilter">Kategori Kegiatan</label>
+        <select id="adminActCategoryFilter">
+          <option value="">Semua Kategori</option>
+        </select>
+      </div>
+      <div class="donation-filter-field">
+        <label for="adminActSearch">Pencarian</label>
+        <input type="search" id="adminActSearch"
+          placeholder="Nama da'i, pihak/tokoh, lokasi, atau narasi">
+      </div>
+      <div class="donation-filter-actions">
+        <button type="button" class="donation-apply-button"
+          onclick="loadAdminActivities()">Terapkan Filter</button>
+        <button type="button" class="donation-reset-button"
+          onclick="resetAdminActivityFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="donation-table-card">
+    <div class="donation-table-heading">
+      <h3>Daftar Laporan Kegiatan Da'i</h3>
+      <div class="donation-total" id="adminActTotal">0 laporan</div>
+    </div>
+    <div id="adminActLoading" class="donation-loading">Memuat data kegiatan...</div>
+    <div class="donation-table-wrap" id="adminActTableWrap" style="display:none">
+      <table class="donation-table">
+        <thead>
+          <tr>
+            <th>NO</th>
+            <th>TANGGAL</th>
+            <th>DA'I PELAPOR</th>
+            <th>KATEGORI</th>
+            <th>PIHAK / TOKOH</th>
+            <th>LOKASI</th>
+            <th>FOTO</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody id="adminActTableBody"></tbody>
+      </table>
+    </div>
+    <div id="adminActEmpty" class="donation-empty" style="display:none">
+      Belum ada laporan kegiatan.
+    </div>
+    <div id="adminActError" class="donation-error"></div>
+  </div>
+</section>
+
+<!-- HALAMAN HISTORY KEGIATAN USER -->
+<section id="userActivityHistoryPage" class="donation-page">
+  <div class="welcome-section">
+    <h1>History Kegiatan</h1>
+    <p>Riwayat laporan kegiatan dakwah yang telah Anda catat.</p>
+  </div>
+
+  <div class="donation-filter-card">
+    <div class="filter-heading">Filter History Kegiatan</div>
+    <div class="donation-filter-grid">
+      <div class="donation-filter-field">
+        <label for="userActStartDate">Dari Tanggal</label>
+        <input type="date" id="userActStartDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="userActEndDate">Sampai Tanggal</label>
+        <input type="date" id="userActEndDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="userActCategoryFilter">Kategori Kegiatan</label>
+        <select id="userActCategoryFilter">
+          <option value="">Semua Kategori</option>
+        </select>
+      </div>
+      <div class="donation-filter-field">
+        <label for="userActSearch">Pencarian</label>
+        <input type="search" id="userActSearch"
+          placeholder="Nama pihak/tokoh, lokasi, atau narasi">
+      </div>
+      <div class="donation-filter-actions">
+        <button type="button" class="donation-apply-button"
+          onclick="loadUserActivities()">Terapkan Filter</button>
+        <button type="button" class="donation-reset-button"
+          onclick="resetUserActivityFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="donation-table-card">
+    <div class="donation-table-heading">
+      <h3>Daftar Riwayat Kegiatan Anda</h3>
+      <div class="donation-total" id="userActTotal">0 laporan</div>
+    </div>
+    <div id="userActLoading" class="donation-loading">Memuat riwayat kegiatan...</div>
+    <div class="donation-table-wrap" id="userActTableWrap" style="display:none">
+      <table class="donation-table">
+        <thead>
+          <tr>
+            <th>NO</th>
+            <th>TANGGAL</th>
+            <th>KATEGORI</th>
+            <th>PIHAK / TOKOH</th>
+            <th>LOKASI</th>
+            <th>FOLLOW-UP</th>
+            <th>FOTO</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody id="userActTableBody"></tbody>
+      </table>
+    </div>
+    <div id="userActEmpty" class="donation-empty" style="display:none">
+      Belum ada riwayat laporan kegiatan.
+    </div>
+    <div id="userActError" class="donation-error"></div>
+  </div>
+</section>
+
+<!-- HALAMAN HISTORY DONASI USER -->
+<section id="donationHistoryPage" class="donation-page">
+  <div class="welcome-section">
+    <h1>History Donasi</h1>
+    <p>Riwayat transaksi donasi yang telah Anda himpun dan catat.</p>
+  </div>
+
+  <div class="donation-filter-card">
+    <div class="filter-heading">Filter History Donasi</div>
+    <div class="donation-filter-grid">
+      <div class="donation-filter-field">
+        <label for="historyDonationStartDate">Dari Tanggal</label>
+        <input type="date" id="historyDonationStartDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="historyDonationEndDate">Sampai Tanggal</label>
+        <input type="date" id="historyDonationEndDate">
+      </div>
+      <div class="donation-filter-field">
+        <label for="historyDonationTypeFilter">Jenis Donasi</label>
+        <select id="historyDonationTypeFilter">
+          <option value="">Semua Jenis Donasi</option>
+        </select>
+      </div>
+      <div class="donation-filter-field">
+        <label for="historyDonationSearch">Pencarian</label>
+        <input type="search" id="historyDonationSearch"
+          placeholder="Nama donatur, nomor HP, atau program">
+      </div>
+      <div class="donation-filter-actions">
+        <button type="button" class="donation-apply-button"
+          onclick="loadUserDonations()">Terapkan Filter</button>
+        <button type="button" class="donation-reset-button"
+          onclick="resetUserDonationFilters()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="donation-table-card">
+    <div class="donation-table-heading">
+      <h3>Daftar Riwayat Donasi Anda</h3>
+      <div class="donation-total" id="historyDonationTotal">0 transaksi · Rp0</div>
+    </div>
+    <div id="historyDonationLoading" class="donation-loading">Memuat riwayat donasi...</div>
+    <div class="donation-table-wrap" id="historyDonationTableWrap" style="display:none">
+      <table class="donation-table">
+        <thead>
+          <tr>
+            <th>NO</th>
+            <th>TANGGAL</th>
+            <th>NAMA DONATUR</th>
+            <th>JENIS DONASI</th>
+            <th>PROGRAM</th>
+            <th>NOMINAL</th>
+            <th>METODE</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody id="historyDonationTableBody"></tbody>
+      </table>
+    </div>
+    <div id="historyDonationEmpty" class="donation-empty" style="display:none">
+      Belum ada riwayat transaksi donasi.
+    </div>
+    <div id="historyDonationError" class="donation-error"></div>
+  </div>
+</section>
+
 <!-- HALAMAN MANAJEMEN PROGRAM -->
 <section id="programPage" class="program-page" style="display:none">
   <div class="welcome-section">
@@ -1925,6 +2296,18 @@
         onclick="closeDonationDetail()">&times;</button>
     </div>
     <div class="donation-detail-grid" id="donationDetailContent"></div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL KEGIATAN -->
+<div class="donation-modal-overlay" id="activityDetailModal">
+  <div class="donation-modal">
+    <div class="donation-modal-header">
+      <h3>Detail Laporan Kegiatan</h3>
+      <button type="button" class="donation-modal-close"
+        onclick="closeActivityDetail()">&times;</button>
+    </div>
+    <div class="donation-detail-grid" id="activityDetailContent"></div>
   </div>
 </div>
 
@@ -2330,42 +2713,55 @@
     // NAVIGATION
     // ==========================================
 
-    
-function showPage(pageName) {
-  const isDashboard = pageName === "Dashboard";
-  const isUserManagement = pageName === "Manajemen User" && currentUser.role === "ADMIN";
-  const isDonationPage = pageName === "Data Donasi" && currentUser.role === "ADMIN";
-  const isDonationEntry = pageName === "Entry Donasi" && currentUser.role === "USER";
-  const isProgramPage = pageName === "Manajemen Program" && currentUser.role === "ADMIN";
-  const isDonorPage = pageName === "Data Donatur";
+    function showPage(pageName) {
+      const isDashboard = pageName === "Dashboard";
+      const isUserManagement = pageName === "Manajemen User" && currentUser.role === "ADMIN";
+      const isDonationPage = pageName === "Data Donasi" && currentUser.role === "ADMIN";
+      const isAdminActivityPage = pageName === "Data Kegiatan" && currentUser.role === "ADMIN";
+      const isDonationEntry = pageName === "Entry Donasi" && currentUser.role === "USER";
+      const isDonationHistory = pageName === "History Donasi" && currentUser.role === "USER";
+      const isActivityEntry = pageName === "Entry Laporan Kegiatan" && currentUser.role === "USER";
+      const isUserActivityHistory = pageName === "History Kegiatan" && currentUser.role === "USER";
+      const isProgramPage = pageName === "Manajemen Program" && currentUser.role === "ADMIN";
+      const isDonorPage = pageName === "Data Donatur";
 
-  document.getElementById("pageTitle").textContent = pageName;
-  document.getElementById("dashboardPage").style.display = isDashboard ? "block" : "none";
-  document.getElementById("userManagementPage").style.display = isUserManagement ? "block" : "none";
-  document.getElementById("donationPage").style.display = isDonationPage ? "block" : "none";
-  document.getElementById("donationEntryPage").style.display = isDonationEntry ? "block" : "none";
-  document.getElementById("programPage").style.display = isProgramPage ? "block" : "none";
-  document.getElementById("donorPage").style.display = isDonorPage ? "block" : "none";
-  document.getElementById("donorFormCard").style.display =
-    isDonorPage && currentUser.role === "USER" ? "block" : "none";
+      document.getElementById("pageTitle").textContent = pageName;
+      document.getElementById("dashboardPage").style.display = isDashboard ? "block" : "none";
+      document.getElementById("userManagementPage").style.display = isUserManagement ? "block" : "none";
+      document.getElementById("donationPage").style.display = isDonationPage ? "block" : "none";
+      document.getElementById("adminActivityPage").style.display = isAdminActivityPage ? "block" : "none";
+      document.getElementById("donationEntryPage").style.display = isDonationEntry ? "block" : "none";
+      document.getElementById("donationHistoryPage").style.display = isDonationHistory ? "block" : "none";
+      document.getElementById("activityEntryPage").style.display = isActivityEntry ? "block" : "none";
+      document.getElementById("userActivityHistoryPage").style.display = isUserActivityHistory ? "block" : "none";
+      document.getElementById("programPage").style.display = isProgramPage ? "block" : "none";
+      document.getElementById("donorPage").style.display = isDonorPage ? "block" : "none";
+      document.getElementById("donorFormCard").style.display =
+        isDonorPage && currentUser.role === "USER" ? "block" : "none";
 
-  const knownPage = isDashboard || isUserManagement || isDonationPage ||
-    isDonationEntry || isProgramPage || isDonorPage;
-  document.getElementById("otherPage").style.display = knownPage ? "none" : "block";
-  document.getElementById("otherPageTitle").textContent = pageName;
-  document.getElementById("otherPageDescription").textContent =
-    "Menu " + pageName + " akan dikembangkan dan dihubungkan dengan database pada tahap berikutnya.";
+      const knownPage = isDashboard || isUserManagement || isDonationPage || isAdminActivityPage ||
+        isDonationEntry || isDonationHistory || isActivityEntry || isUserActivityHistory ||
+        isProgramPage || isDonorPage;
+      document.getElementById("otherPage").style.display = knownPage ? "none" : "block";
+      document.getElementById("otherPageTitle").textContent = pageName;
+      document.getElementById("otherPageDescription").textContent =
+        "Menu " + pageName + " akan dikembangkan dan dihubungkan dengan database pada tahap berikutnya.";
 
-  document.querySelectorAll(".menu-item").forEach(function(item) {
-    item.classList.toggle("active", item.textContent === pageName);
-  });
+      document.querySelectorAll(".menu-item").forEach(function(item) {
+        item.classList.toggle("active", item.textContent === pageName);
+      });
 
-  if (isUserManagement) loadUsers();
-  if (isDonationPage) loadDonations();
-  if (isDonationEntry) loadDonationFormOptions();
-  if (isProgramPage) loadPrograms();
-  if (isDonorPage) { loadDonors(); if (currentUser.role === "USER") loadDonorProgramOptions(); }
-}
+      if (isUserManagement) loadUsers();
+      if (isDonationPage) loadDonations();
+      if (isAdminActivityPage) loadAdminActivities();
+      if (isDonationEntry) loadDonationFormOptions();
+      if (isDonationHistory) loadUserDonations();
+      if (isActivityEntry) loadActivityFormOptions();
+      if (isUserActivityHistory) loadUserActivities();
+      if (isProgramPage) loadPrograms();
+      if (isDonorPage) { loadDonors(); if (currentUser.role === "USER") loadDonorProgramOptions(); }
+    }
+
 
     // ==========================================
     // LOAD DASHBOARD DATA
@@ -3458,6 +3854,664 @@ document.getElementById("resetDonationEntryButton").addEventListener("click", fu
 
 document.getElementById("entryDonationDate").value = localDateString(new Date());
 
+
+// ==========================================
+// ENTRY LAPORAN KEGIATAN USER
+// ==========================================
+
+let selectedActivityPhotos = [];
+
+function setActivityEntryMessage(message, type) {
+  const box = document.getElementById("activityEntryMessage");
+  box.textContent = message || "";
+  box.className = "entry-message" + (message ? " " + type : "");
+}
+
+function loadActivityFormOptions() {
+  if (!currentToken || !currentUser || currentUser.role !== "USER") return;
+
+  const categorySelect = document.getElementById("entryActivityCategory");
+  categorySelect.innerHTML = '<option value="">Memuat kategori kegiatan...</option>';
+  setActivityEntryMessage("", "");
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (!result || !result.success) {
+        setActivityEntryMessage("Kategori kegiatan tidak dapat dimuat.", "error");
+        return;
+      }
+
+      fillDonationSelect(categorySelect, result.kategori, "Pilih kategori kegiatan");
+
+      if (!result.kategori || result.kategori.length === 0) {
+        setActivityEntryMessage(
+          "Master Kategori Kegiatan belum memiliki data aktif. Hubungi admin untuk melengkapinya.",
+          "error"
+        );
+      }
+    })
+    .withFailureHandler(function(error) {
+      setActivityEntryMessage(
+        error.message || "Gagal memuat kategori kegiatan.",
+        "error"
+      );
+    })
+    .getActivityFormOptions(currentToken);
+}
+
+function updateActivityPhotoPreview() {
+  const grid = document.getElementById("activityPhotoPreviewGrid");
+  const counter = document.getElementById("activityPhotoCounter");
+  const count = selectedActivityPhotos.length;
+
+  if (count === 0) {
+    counter.textContent = "Belum ada foto dipilih (0/5 foto · minimal 2 foto). Format: JPG, PNG, atau WEBP. Maksimal 5 MB per foto.";
+    counter.style.color = "var(--muted)";
+    grid.style.display = "none";
+    grid.innerHTML = "";
+    return;
+  }
+
+  if (count < 2) {
+    counter.textContent = count + "/5 foto terpilih (kurang " + (2 - count) + " foto lagi agar memenuhi syarat minimal 2 foto).";
+    counter.style.color = "var(--danger)";
+  } else {
+    counter.textContent = count + "/5 foto terpilih (memenuhi syarat minimal 2 foto, maksimal 5 foto).";
+    counter.style.color = "#067647";
+  }
+
+  grid.style.display = "grid";
+  grid.innerHTML = "";
+
+  selectedActivityPhotos.forEach(function(photo, index) {
+    const item = document.createElement("div");
+    item.className = "activity-photo-item";
+
+    const img = document.createElement("img");
+    img.src = photo.previewUrl;
+    img.alt = "Foto Kegiatan " + (index + 1);
+
+    const badge = document.createElement("span");
+    badge.className = "activity-photo-badge";
+    badge.textContent = "Foto " + (index + 1);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "activity-photo-remove";
+    removeBtn.title = "Hapus foto";
+    removeBtn.innerHTML = "&times;";
+    removeBtn.addEventListener("click", function() {
+      selectedActivityPhotos.splice(index, 1);
+      updateActivityPhotoPreview();
+    });
+
+    item.appendChild(img);
+    item.appendChild(badge);
+    item.appendChild(removeBtn);
+    grid.appendChild(item);
+  });
+}
+
+document.getElementById("entryActivityPhotos").addEventListener("change", async function(event) {
+  const files = Array.from(event.target.files || []);
+  event.target.value = "";
+  if (!files.length) return;
+
+  setActivityEntryMessage("", "");
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+  for (let i = 0; i < files.length; i++) {
+    if (selectedActivityPhotos.length >= 5) {
+      setActivityEntryMessage("Maksimal 5 foto kegiatan. Foto selebihnya tidak ditambahkan.", "error");
+      break;
+    }
+
+    const file = files[i];
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      setActivityEntryMessage("File '" + file.name + "' ditolak. Gunakan format JPG, PNG, atau WEBP.", "error");
+      continue;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setActivityEntryMessage("File '" + file.name + "' melebihi batas ukuran maksimal 5 MB.", "error");
+      continue;
+    }
+
+    try {
+      const encoded = await new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function() {
+          const dataUrl = String(reader.result || "");
+          resolve({
+            fileName: file.name,
+            mimeType: file.type,
+            previewUrl: dataUrl,
+            base64: dataUrl.split(",")[1] || ""
+          });
+        };
+        reader.onerror = function() {
+          reject(new Error("Gagal membaca file " + file.name));
+        };
+        reader.readAsDataURL(file);
+      });
+
+      selectedActivityPhotos.push(encoded);
+    } catch (err) {
+      setActivityEntryMessage(err.message, "error");
+    }
+  }
+
+  updateActivityPhotoPreview();
+});
+
+function resetActivityEntryForm() {
+  document.getElementById("activityEntryForm").reset();
+  document.getElementById("entryActivityDate").value = localDateString(new Date());
+  selectedActivityPhotos = [];
+  updateActivityPhotoPreview();
+  setActivityEntryMessage("", "");
+}
+
+document.getElementById("resetActivityEntryButton").addEventListener("click", function() {
+  resetActivityEntryForm();
+});
+
+document.getElementById("activityEntryForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  if (!currentToken || !currentUser || currentUser.role !== "USER") {
+    setActivityEntryMessage("Sesi pengguna tidak valid. Silakan login kembali.", "error");
+    return;
+  }
+
+  if (selectedActivityPhotos.length < 2) {
+    setActivityEntryMessage("Minimal upload 2 foto kegiatan sebelum menyimpan laporan.", "error");
+    return;
+  }
+
+  if (selectedActivityPhotos.length > 5) {
+    setActivityEntryMessage("Maksimal upload 5 foto kegiatan.", "error");
+    return;
+  }
+
+  const payload = {
+    tanggal_kegiatan: document.getElementById("entryActivityDate").value,
+    kategori_id: document.getElementById("entryActivityCategory").value,
+    nama_pihak: document.getElementById("entryActivityParty").value.trim(),
+    no_hp_kontak: document.getElementById("entryActivityPhone").value.trim(),
+    lokasi: document.getElementById("entryActivityLocation").value.trim(),
+    narasi_kegiatan: document.getElementById("entryActivityNarrative").value.trim(),
+    tindak_lanjut: document.getElementById("entryActivityFollowup").value.trim(),
+    tanggal_followup: document.getElementById("entryActivityFollowupDate").value,
+    fotos: selectedActivityPhotos.map(function(p) {
+      return {
+        fileName: p.fileName,
+        mimeType: p.mimeType,
+        base64: p.base64
+      };
+    })
+  };
+
+  if (!payload.tanggal_kegiatan || !payload.kategori_id ||
+      !payload.nama_pihak || !payload.lokasi || !payload.narasi_kegiatan) {
+    setActivityEntryMessage("Mohon lengkapi seluruh kolom bertanda bintang (*) dengan benar.", "error");
+    return;
+  }
+
+  const button = document.getElementById("submitActivityEntryButton");
+  button.disabled = true;
+  button.textContent = "MENGUNGGAH & MENYIMPAN...";
+  setActivityEntryMessage("Sedang mengunggah " + payload.fotos.length + " foto dan menyimpan laporan...", "success");
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      button.disabled = false;
+      button.textContent = "Simpan Laporan Kegiatan";
+
+      if (!result || !result.success) {
+        setActivityEntryMessage((result && result.message) || "Laporan kegiatan gagal disimpan.", "error");
+        return;
+      }
+
+      resetActivityEntryForm();
+      setActivityEntryMessage(
+        "Laporan kegiatan berhasil disimpan. Nomor laporan: " + result.laporan_id +
+        " (" + result.jumlah_foto + " foto terunggah).",
+        "success"
+      );
+    })
+    .withFailureHandler(function(error) {
+      button.disabled = false;
+      button.textContent = "Simpan Laporan Kegiatan";
+      setActivityEntryMessage(error.message || "Terjadi kesalahan saat menyimpan laporan kegiatan.", "error");
+    })
+    .createActivityEntry(currentToken, payload);
+});
+
+document.getElementById("entryActivityDate").value = localDateString(new Date());
+
+
+// ==========================================
+// DATA KEGIATAN ADMIN & HISTORY KEGIATAN USER
+// ==========================================
+
+let activeActivityList = [];
+
+function renderActivityCategoryFilter(selectId, items) {
+  const select = document.getElementById(selectId);
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">Semua Kategori</option>';
+
+  (items || []).forEach(function(item) {
+    const opt = document.createElement("option");
+    opt.value = item.id;
+    opt.textContent = item.nama;
+    select.appendChild(opt);
+  });
+  select.value = currentVal;
+}
+
+function loadAdminActivities() {
+  if (!currentToken || !currentUser || currentUser.role !== "ADMIN") return;
+
+  const loading = document.getElementById("adminActLoading");
+  const wrap = document.getElementById("adminActTableWrap");
+  const empty = document.getElementById("adminActEmpty");
+  const error = document.getElementById("adminActError");
+
+  loading.style.display = "block";
+  wrap.style.display = "none";
+  empty.style.display = "none";
+  error.textContent = "";
+
+  const filters = {
+    startDate: document.getElementById("adminActStartDate").value,
+    endDate: document.getElementById("adminActEndDate").value,
+    kategoriId: document.getElementById("adminActCategoryFilter").value,
+    search: document.getElementById("adminActSearch").value.trim()
+  };
+
+  if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+    loading.style.display = "none";
+    error.textContent = "Tanggal awal tidak boleh melebihi tanggal akhir.";
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      loading.style.display = "none";
+      if (!result || !result.success) {
+        error.textContent = "Data kegiatan gagal dimuat.";
+        return;
+      }
+      activeActivityList = result.data || [];
+      renderActivityCategoryFilter("adminActCategoryFilter", result.master ? result.master.kategori : []);
+      renderActivityTable(true);
+    })
+    .withFailureHandler(function(err) {
+      loading.style.display = "none";
+      error.textContent = err.message || "Gagal mengambil data kegiatan.";
+    })
+    .getAdminActivities(currentToken, filters);
+}
+
+function loadUserActivities() {
+  if (!currentToken || !currentUser || currentUser.role !== "USER") return;
+
+  const loading = document.getElementById("userActLoading");
+  const wrap = document.getElementById("userActTableWrap");
+  const empty = document.getElementById("userActEmpty");
+  const error = document.getElementById("userActError");
+
+  loading.style.display = "block";
+  wrap.style.display = "none";
+  empty.style.display = "none";
+  error.textContent = "";
+
+  const filters = {
+    startDate: document.getElementById("userActStartDate").value,
+    endDate: document.getElementById("userActEndDate").value,
+    kategoriId: document.getElementById("userActCategoryFilter").value,
+    search: document.getElementById("userActSearch").value.trim()
+  };
+
+  if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+    loading.style.display = "none";
+    error.textContent = "Tanggal awal tidak boleh melebihi tanggal akhir.";
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      loading.style.display = "none";
+      if (!result || !result.success) {
+        error.textContent = "Riwayat kegiatan gagal dimuat.";
+        return;
+      }
+      activeActivityList = result.data || [];
+      renderActivityCategoryFilter("userActCategoryFilter", result.master ? result.master.kategori : []);
+      renderActivityTable(false);
+    })
+    .withFailureHandler(function(err) {
+      loading.style.display = "none";
+      error.textContent = err.message || "Gagal mengambil riwayat kegiatan.";
+    })
+    .getUserActivities(currentToken, filters);
+}
+
+function renderActivityTable(isAdmin) {
+  const body = document.getElementById(isAdmin ? "adminActTableBody" : "userActTableBody");
+  const wrap = document.getElementById(isAdmin ? "adminActTableWrap" : "userActTableWrap");
+  const empty = document.getElementById(isAdmin ? "adminActEmpty" : "userActEmpty");
+  const total = document.getElementById(isAdmin ? "adminActTotal" : "userActTotal");
+
+  body.innerHTML = "";
+  total.textContent = formatNumber(activeActivityList.length) + " laporan";
+
+  if (!activeActivityList.length) {
+    wrap.style.display = "none";
+    empty.style.display = "block";
+    empty.textContent = "Tidak ada laporan kegiatan yang sesuai dengan filter.";
+    return;
+  }
+
+  empty.style.display = "none";
+  wrap.style.display = "block";
+
+  activeActivityList.forEach(function(item, index) {
+    const tr = document.createElement("tr");
+    const cells = isAdmin
+      ? [
+          index + 1,
+          formatDonationDateForDisplay(item.tanggal_kegiatan),
+          item.nama_dai || "-",
+          item.nama_kategori || "-",
+          item.nama_pihak || "-",
+          item.lokasi || "-",
+          item.jumlah_foto + " foto"
+        ]
+      : [
+          index + 1,
+          formatDonationDateForDisplay(item.tanggal_kegiatan),
+          item.nama_kategori || "-",
+          item.nama_pihak || "-",
+          item.lokasi || "-",
+          item.tanggal_followup ? formatDonationDateForDisplay(item.tanggal_followup) : "-",
+          item.jumlah_foto + " foto"
+        ];
+
+    cells.forEach(function(val) {
+      const td = document.createElement("td");
+      td.textContent = val;
+      tr.appendChild(td);
+    });
+
+    const tdStatus = document.createElement("td");
+    const badge = document.createElement("span");
+    badge.className = "donation-status";
+    if (String(item.status_laporan).toUpperCase() === "DIBATALKAN") {
+      badge.classList.add("cancelled");
+    }
+    badge.textContent = item.status_laporan || "TERCATAT";
+    tdStatus.appendChild(badge);
+    tr.appendChild(tdStatus);
+
+    const tdAction = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "donation-detail-button";
+    btn.textContent = "Detail";
+    btn.addEventListener("click", function() {
+      showActivityDetail(item.laporan_id);
+    });
+    tdAction.appendChild(btn);
+    tr.appendChild(tdAction);
+
+    body.appendChild(tr);
+  });
+}
+
+function showActivityDetail(laporanId) {
+  const item = activeActivityList.find(function(row) {
+    return String(row.laporan_id) === String(laporanId);
+  });
+  if (!item) return;
+
+  const content = document.getElementById("activityDetailContent");
+  content.innerHTML = "";
+
+  addDonationDetailItem(content, "ID Laporan", item.laporan_id);
+  addDonationDetailItem(content, "Tanggal Kegiatan", formatDonationDateForDisplay(item.tanggal_kegiatan));
+  addDonationDetailItem(content, "Da'i Pelapor", item.nama_dai);
+  addDonationDetailItem(content, "Waktu Input", item.waktu_input);
+  addDonationDetailItem(content, "Kategori Kegiatan", item.nama_kategori);
+  addDonationDetailItem(content, "Pihak / Tokoh / Lembaga", item.nama_pihak);
+  addDonationDetailItem(content, "Nomor HP Kontak", item.no_hp_kontak);
+  addDonationDetailItem(content, "Status Laporan", item.status_laporan);
+  addDonationDetailItem(content, "Lokasi Kegiatan", item.lokasi, true);
+  addDonationDetailItem(content, "Narasi Kegiatan", item.narasi_kegiatan, true);
+  addDonationDetailItem(content, "Rencana Tindak Lanjut", item.tindak_lanjut, true);
+  addDonationDetailItem(content, "Tanggal Follow-up",
+    item.tanggal_followup ? formatDonationDateForDisplay(item.tanggal_followup) : "-", true);
+
+  // Galeri Foto Dokumentasi (2 - 5 foto)
+  const photoWrapper = document.createElement("div");
+  photoWrapper.className = "donation-detail-item full";
+
+  const photoLabel = document.createElement("div");
+  photoLabel.className = "donation-detail-label";
+  photoLabel.textContent = "Dokumentasi Foto Kegiatan (" + (item.foto_ids ? item.foto_ids.length : 0) + " Foto)";
+  photoWrapper.appendChild(photoLabel);
+
+  if (item.foto_ids && item.foto_ids.length > 0) {
+    const gallery = document.createElement("div");
+    gallery.className = "activity-detail-photos";
+
+    item.foto_ids.forEach(function(fileId, idx) {
+      const link = document.createElement("a");
+      link.className = "activity-detail-photo-link";
+      link.href = "https://drive.google.com/open?id=" + encodeURIComponent(fileId);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const img = document.createElement("img");
+      img.src = "https://drive.google.com/thumbnail?id=" + encodeURIComponent(fileId) + "&sz=w400";
+      img.alt = "Foto Kegiatan " + (idx + 1);
+
+      const caption = document.createElement("span");
+      caption.textContent = "Buka Foto " + (idx + 1);
+
+      link.appendChild(img);
+      link.appendChild(caption);
+      gallery.appendChild(link);
+    });
+
+    photoWrapper.appendChild(gallery);
+  } else {
+    const noPhoto = document.createElement("div");
+    noPhoto.className = "donation-detail-value";
+    noPhoto.textContent = "Tidak ada foto terlampir.";
+    photoWrapper.appendChild(noPhoto);
+  }
+
+  content.appendChild(photoWrapper);
+  document.getElementById("activityDetailModal").classList.add("show");
+}
+
+function closeActivityDetail() {
+  document.getElementById("activityDetailModal").classList.remove("show");
+}
+
+function resetAdminActivityFilters() {
+  document.getElementById("adminActStartDate").value = "";
+  document.getElementById("adminActEndDate").value = "";
+  document.getElementById("adminActCategoryFilter").value = "";
+  document.getElementById("adminActSearch").value = "";
+  loadAdminActivities();
+}
+
+function resetUserActivityFilters() {
+  document.getElementById("userActStartDate").value = "";
+  document.getElementById("userActEndDate").value = "";
+  document.getElementById("userActCategoryFilter").value = "";
+  document.getElementById("userActSearch").value = "";
+  loadUserActivities();
+}
+
+
+// ==========================================
+// MODUL HISTORY DONASI USER
+// ==========================================
+
+let userDonationList = [];
+
+function loadUserDonations() {
+  if (!currentToken || !currentUser || currentUser.role !== "USER") return;
+
+  const loading = document.getElementById("historyDonationLoading");
+  const tableWrap = document.getElementById("historyDonationTableWrap");
+  const empty = document.getElementById("historyDonationEmpty");
+  const error = document.getElementById("historyDonationError");
+
+  loading.style.display = "block";
+  loading.textContent = "Memuat riwayat donasi...";
+  tableWrap.style.display = "none";
+  empty.style.display = "none";
+  error.textContent = "";
+
+  const filters = {
+    startDate: document.getElementById("historyDonationStartDate").value,
+    endDate: document.getElementById("historyDonationEndDate").value,
+    jenisDonasiId: document.getElementById("historyDonationTypeFilter").value,
+    search: document.getElementById("historyDonationSearch").value.trim()
+  };
+
+  if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+    loading.style.display = "none";
+    error.textContent = "Tanggal awal tidak boleh melebihi tanggal akhir.";
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      loading.style.display = "none";
+
+      if (!result || !result.success) {
+        error.textContent = "Riwayat donasi tidak dapat dimuat.";
+        return;
+      }
+
+      userDonationList = Array.isArray(result.data) ? result.data : [];
+      donationList = userDonationList;
+
+      renderUserDonationTypeOptions(
+        result.master ? result.master.jenis_donasi : []
+      );
+      renderUserDonationTable();
+    })
+    .withFailureHandler(function(err) {
+      loading.style.display = "none";
+      error.textContent = err.message || "Gagal mengambil riwayat donasi.";
+    })
+    .getUserDonations(currentToken, filters);
+}
+
+function renderUserDonationTypeOptions(items) {
+  const select = document.getElementById("historyDonationTypeFilter");
+  const selectedValue = select.value;
+
+  select.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Semua Jenis Donasi";
+  select.appendChild(defaultOption);
+
+  (items || []).forEach(function(item) {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = item.nama;
+    select.appendChild(option);
+  });
+
+  select.value = selectedValue;
+}
+
+function renderUserDonationTable() {
+  const body = document.getElementById("historyDonationTableBody");
+  const tableWrap = document.getElementById("historyDonationTableWrap");
+  const empty = document.getElementById("historyDonationEmpty");
+  const totalEl = document.getElementById("historyDonationTotal");
+
+  body.innerHTML = "";
+
+  const totalNominal = userDonationList.reduce(function(sum, item) {
+    return String(item.status_transaksi).toUpperCase() === "DIBATALKAN"
+      ? sum
+      : sum + (Number(item.nominal) || 0);
+  }, 0);
+
+  totalEl.textContent =
+    formatNumber(userDonationList.length) + " transaksi · " + formatRupiah(totalNominal);
+
+  if (userDonationList.length === 0) {
+    tableWrap.style.display = "none";
+    empty.style.display = "block";
+    empty.textContent = "Tidak ada riwayat donasi yang sesuai dengan filter.";
+    return;
+  }
+
+  empty.style.display = "none";
+  tableWrap.style.display = "block";
+
+  userDonationList.forEach(function(item, index) {
+    const tr = document.createElement("tr");
+    const values = [
+      index + 1,
+      formatDonationDateForDisplay(item.tanggal_donasi),
+      item.nama_donatur || "-",
+      item.jenis_donasi || "-",
+      item.nama_program || "-",
+      formatRupiah(item.nominal),
+      item.metode || "-"
+    ];
+
+    values.forEach(function(value) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    const tdStatus = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = "donation-status";
+    if (String(item.status_transaksi).toUpperCase() === "DIBATALKAN") {
+      status.classList.add("cancelled");
+    }
+    status.textContent = item.status_transaksi || "TERCATAT";
+    tdStatus.appendChild(status);
+    tr.appendChild(tdStatus);
+
+    const tdAction = document.createElement("td");
+    const detailButton = document.createElement("button");
+    detailButton.type = "button";
+    detailButton.className = "donation-detail-button";
+    detailButton.textContent = "Detail";
+    detailButton.addEventListener("click", function() {
+      showDonationDetail(item.donasi_id);
+    });
+    tdAction.appendChild(detailButton);
+    tr.appendChild(tdAction);
+
+    body.appendChild(tr);
+  });
+}
+
+function resetUserDonationFilters() {
+  document.getElementById("historyDonationStartDate").value = "";
+  document.getElementById("historyDonationEndDate").value = "";
+  document.getElementById("historyDonationTypeFilter").value = "";
+  document.getElementById("historyDonationSearch").value = "";
+  loadUserDonations();
+}
 
 
 // ==========================================
