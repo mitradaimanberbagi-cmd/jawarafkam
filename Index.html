@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1129,6 +1128,11 @@
   border-radius:8px; font:inherit; font-size:13px; background:#fff;
   color:var(--text);
 }
+.entry-form-group select:disabled {
+  background:#f8fafc;
+  color:var(--muted);
+  cursor:not-allowed;
+}
 .entry-form-group textarea { min-height:100px; resize:vertical; }
 .entry-form-help { color:var(--muted); font-size:11px; margin-top:6px; line-height:1.5; }
 .entry-form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
@@ -1188,12 +1192,54 @@
 .donor-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:18px; }
 .donor-toolbar { display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin-bottom:15px; }
 .donor-search { flex:1; min-width:220px; }
-.donor-search input,.donor-field input,.donor-field textarea { width:100%; padding:11px 12px; border:1px solid #d9e1ec; border-radius:8px; font:inherit; font-size:13px; }
+.donor-search input,
+.donor-field input,
+.donor-field select,
+.donor-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 39px;
+  padding: 11px 12px;
+  border: 1px solid #d9e1ec;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.donor-field select {
+  height: 39px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 35px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2324364b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.donor-field select:disabled {
+  background-color: #f8fafc;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .donor-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-.donor-field { display:flex; flex-direction:column; gap:7px; }
+.donor-field { display:flex; flex-direction:column; gap:7px; min-width:0; }
 .donor-field.full { grid-column:1/-1; }
 .donor-field label { font-size:12px; font-weight:600; }
 .donor-field textarea { min-height:75px; resize:vertical; }
+
+.donor-field input:focus,
+.donor-field select:focus,
+.donor-field textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(18,59,112,.1);
+}
 .donor-button { border:0; border-radius:8px; padding:11px 16px; background:var(--navy); color:#fff; font-size:12px; font-weight:bold; }
 .donor-button:disabled { opacity:.6; cursor:not-allowed; }
 .donor-table-wrap { overflow-x:auto; }
@@ -1206,7 +1252,34 @@
 .donor-muted { color:var(--muted); font-size:13px; padding:20px 0; }
 @media(max-width:700px) { .donor-card { padding:14px; } .donor-form-grid { grid-template-columns:1fr; } .donor-field.full { grid-column:auto; } }
 
-  </style>
+  
+
+    .donor-suggestions {
+      position: relative;
+      z-index: 30;
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(20,45,80,.12);
+      margin-top: 5px;
+    }
+    .donor-suggestion-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .donor-suggestion-item:hover { background: #f3f6fb; }
+    .donor-suggestion-item small { display:block; color:var(--muted); margin-top:3px; }
+
+</style>
 </head>
 
 <body>
@@ -1622,9 +1695,12 @@
         </div>
 
         <div class="entry-form-group">
-          <label for="entryDonorName">Nama Donatur *</label>
-          <input type="text" id="entryDonorName"
-            placeholder="Masukkan nama donatur" maxlength="150" required>
+          <label for="entryDonorName">Cari dan Pilih Donatur *</label>
+          <input type="text" id="entryDonorName" autocomplete="off"
+            placeholder="Ketik nama atau nomor WhatsApp donatur" maxlength="150" required>
+          <input type="hidden" id="entryDonorId">
+          <div id="entryDonorSuggestions" class="donor-suggestions" style="display:none"></div>
+          <div class="entry-form-help">Pilih donatur dari daftar agar program dan sub program bawaan terisi otomatis.</div>
         </div>
 
         <div class="entry-form-group">
@@ -1645,6 +1721,12 @@
           <label for="entryDonationProgram">Program</label>
           <select id="entryDonationProgram">
             <option value="">Tanpa program / belum ditentukan</option>
+          </select>
+        </div>
+        <div class="entry-form-group">
+          <label for="entryDonationSubProgram">Sub Program</label>
+          <select id="entryDonationSubProgram" disabled>
+            <option value="">Pilih program terlebih dahulu</option>
           </select>
         </div>
 
@@ -1702,9 +1784,22 @@
           <input id="programName" type="text" maxlength="150" required placeholder="Contoh: Yatim Brilian">
         </div>
         <div class="program-field">
-          <label for="programCategory">Kategori Program *</label>
-          <input id="programCategory" type="text" maxlength="100" required placeholder="Contoh: Pendidikan">
+          <label for="programSubProgram">Sub Program</label>
+          <input id="programSubProgram" type="text" maxlength="150" placeholder="Contoh: Beasiswa Santri">
         </div>
+        
+  <div class="program-field">
+    <label for="programCategory">Kategori Program *</label>
+    <select id="programCategory" required>
+      <option value="">Pilih Kategori Program</option>
+      <option value="Pendidikan">Pendidikan</option>
+      <option value="Dakwah">Dakwah</option>
+      <option value="Kesehatan">Kesehatan</option>
+      <option value="Sosial">Sosial</option>
+      <option value="Kemanusiaan">Kemanusiaan</option>
+    </select>
+  </div>
+
         <div class="program-field full">
           <label for="programDescription">Deskripsi</label>
           <textarea id="programDescription" maxlength="1000" placeholder="Keterangan singkat program (opsional)"></textarea>
@@ -1726,7 +1821,7 @@
     <div id="programLoading" style="font-size:13px;color:var(--muted)">Memuat daftar program...</div>
     <div class="program-table-wrap" id="programTableWrap" style="display:none">
       <table class="program-table">
-        <thead><tr><th>NO</th><th>NAMA PROGRAM</th><th>KATEGORI</th><th>DESKRIPSI</th><th>STATUS</th><th>AKSI</th></tr></thead>
+        <thead><tr><th>NO</th><th>NAMA PROGRAM</th><th>SUB PROGRAM</th><th>KATEGORI</th><th>DESKRIPSI</th><th>STATUS</th><th>AKSI</th></tr></thead>
         <tbody id="programTableBody"></tbody>
       </table>
     </div>
@@ -1740,13 +1835,24 @@
 <section id="donorPage" class="donor-page">
   <div class="welcome-section">
     <h1>Data Donatur</h1>
-    <p>Database donatur JAWARA FKAM. ADMIN hanya dapat melihat data, USER dapat menambahkan donatur.</p>
+    <p>Database donatur JAWARA FKAM. ADMIN dapat melihat seluruh data beserta pengelolanya, USER hanya melihat dan menambahkan donatur kelolaannya.</p>
   </div>
 
   <div class="donor-card" id="donorFormCard" style="display:none">
     <h3 style="color:var(--navy);font-size:16px;margin-bottom:16px">Tambah Donatur</h3>
     <form id="donorForm">
       <div class="donor-form-grid">
+        <div class="donor-field">
+          <label for="donorPanggilan">Panggilan *</label>
+          <select id="donorPanggilan" required>
+            <option value="">Pilih panggilan</option>
+            <option value="Bapak">Bapak</option>
+            <option value="Ibu">Ibu</option>
+            <option value="Mas">Mas</option>
+            <option value="Mbak">Mbak</option>
+            <option value="Owner">Owner</option>
+          </select>
+        </div>
         <div class="donor-field">
           <label for="donorName">Nama Donatur *</label>
           <input id="donorName" type="text" maxlength="150" required placeholder="Nama individu atau lembaga">
@@ -1756,8 +1862,14 @@
           <input id="donorPhone" type="tel" maxlength="25" placeholder="Contoh: 081234567890">
         </div>
         <div class="donor-field">
-          <label for="donorEmail">Email</label>
-          <input id="donorEmail" type="email" placeholder="Alamat email (opsional)">
+          <label for="donorProgram">Program</label>
+          <select id="donorProgram"><option value="">Pilih program</option></select>
+        </div>
+        <div class="donor-field">
+          <label for="donorSubProgram">Sub Program</label>
+          <select id="donorSubProgram" disabled>
+            <option value="">Pilih program terlebih dahulu</option>
+          </select>
         </div>
         <div class="donor-field full">
           <label for="donorAddress">Alamat</label>
@@ -1767,7 +1879,7 @@
       <div id="donorFormMessage" class="donor-message"></div>
       <div class="program-actions">
         <button type="submit" class="donor-button" id="donorSubmitButton">Simpan Donatur</button>
-        <button type="reset" class="program-secondary">Kosongkan Formulir</button>
+        <button type="reset" class="program-secondary" id="resetDonorFormButton">Kosongkan Formulir</button>
       </div>
     </form>
   </div>
@@ -1776,14 +1888,16 @@
     <div class="donor-toolbar">
       <div class="donor-search">
         <label for="donorSearch" style="font-size:12px;font-weight:600;display:block;margin-bottom:7px">Cari Donatur</label>
-        <input id="donorSearch" type="search" placeholder="Cari nama, nomor WhatsApp, email, atau alamat">
+        <input id="donorSearch" type="search" placeholder="Cari nama, panggilan, nomor WhatsApp, program, atau alamat">
       </div>
       <button type="button" class="donor-button" onclick="loadDonors()">Cari / Muat Ulang</button>
     </div>
     <div id="donorLoading" class="donor-muted">Memuat data donatur...</div>
     <div class="donor-table-wrap" id="donorTableWrap" style="display:none">
       <table class="donor-table">
-        <thead><tr><th>NO</th><th>NAMA DONATUR</th><th>WHATSAPP</th><th>EMAIL</th><th>ALAMAT</th><th>TANGGAL BERGABUNG</th></tr></thead>
+        <thead id="donorTableHead">
+          <tr><th>NO</th><th>PANGGILAN</th><th>NAMA DONATUR</th><th>WHATSAPP</th><th>PROGRAM</th><th>SUB PROGRAM</th><th>ALAMAT</th><th>TANGGAL BERGABUNG</th></tr>
+        </thead>
         <tbody id="donorTableBody"></tbody>
       </table>
     </div>
@@ -1964,6 +2078,81 @@
       const day = String(date.getDate()).padStart(2, "0");
 
       return year + "-" + month + "-" + day;
+    }
+
+    // ==========================================
+    // HELPER DROPDOWN PROGRAM & SUB PROGRAM
+    // ==========================================
+
+    function populateUniqueProgramDropdown(selectEl, masterList, defaultText) {
+      selectEl.innerHTML = "";
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.textContent = defaultText;
+      selectEl.appendChild(defaultOpt);
+
+      const seenNames = new Set();
+      (masterList || []).forEach(function(item) {
+        const progName = String(item.nama || item.nama_program || "").trim();
+        if (!progName) return;
+        const key = progName.toLowerCase();
+        if (!seenNames.has(key)) {
+          seenNames.add(key);
+          const opt = document.createElement("option");
+          opt.value = progName;
+          opt.textContent = progName;
+          selectEl.appendChild(opt);
+        }
+      });
+    }
+
+    function populateSubProgramDropdown(subSelectEl, masterList, selectedProgramName, targetProgramId) {
+      subSelectEl.innerHTML = "";
+
+      if (!selectedProgramName) {
+        subSelectEl.innerHTML = '<option value="">Pilih program terlebih dahulu</option>';
+        subSelectEl.disabled = true;
+        return;
+      }
+
+      const matches = (masterList || []).filter(function(item) {
+        const progName = String(item.nama || item.nama_program || "").trim().toLowerCase();
+        return progName === selectedProgramName.trim().toLowerCase();
+      });
+
+      const subItems = matches.filter(function(item) {
+        return String(item.sub_program || "").trim() !== "";
+      });
+
+      if (subItems.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = matches[0] ? String(matches[0].id || matches[0].program_id) : "";
+        opt.textContent = "Tidak ada sub program";
+        opt.dataset.subProgram = "";
+        subSelectEl.appendChild(opt);
+        subSelectEl.disabled = true;
+        return;
+      }
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Pilih sub program";
+      placeholder.dataset.subProgram = "";
+      subSelectEl.appendChild(placeholder);
+
+      subItems.forEach(function(item) {
+        const opt = document.createElement("option");
+        opt.value = String(item.id || item.program_id);
+        opt.textContent = String(item.sub_program).trim();
+        opt.dataset.subProgram = String(item.sub_program).trim();
+        subSelectEl.appendChild(opt);
+      });
+
+      subSelectEl.disabled = false;
+
+      if (targetProgramId) {
+        subSelectEl.value = String(targetProgramId);
+      }
     }
 
     // ==========================================
@@ -2175,7 +2364,7 @@ function showPage(pageName) {
   if (isDonationPage) loadDonations();
   if (isDonationEntry) loadDonationFormOptions();
   if (isProgramPage) loadPrograms();
-  if (isDonorPage) loadDonors();
+  if (isDonorPage) { loadDonors(); if (currentUser.role === "USER") loadDonorProgramOptions(); }
 }
 
     // ==========================================
@@ -2733,11 +2922,9 @@ document.getElementById("userForm").addEventListener(
       payload.status =
         document.getElementById("formStatus").value;
 
-      // Ambil password baru.
       const newPassword =
         document.getElementById("formPassword").value;
 
-      // Validasi jika password diisi.
       if (newPassword && newPassword.length < 4) {
         button.disabled = false;
         button.textContent = "Simpan Perubahan";
@@ -2749,7 +2936,6 @@ document.getElementById("userForm").addEventListener(
         return;
       }
 
-      // Kirim password hanya jika kolom diisi.
       if (newPassword) {
         payload.password = newPassword;
       }
@@ -3025,13 +3211,13 @@ function resetDonationFilters() {
   loadDonations();
 }
 
-    // ==========================================
 
 // ==========================================
 // ENTRY DONASI USER
 // ==========================================
 
 let donationFormOptionsLoaded = false;
+let entryProgramMasterList = [];
 
 function setDonationEntryMessage(message, type) {
   const box = document.getElementById("donationEntryMessage");
@@ -3044,10 +3230,13 @@ function loadDonationFormOptions() {
 
   const typeSelect = document.getElementById("entryDonationType");
   const programSelect = document.getElementById("entryDonationProgram");
+  const subProgramSelect = document.getElementById("entryDonationSubProgram");
   const methodSelect = document.getElementById("entryDonationMethod");
 
   typeSelect.innerHTML = '<option value="">Memuat jenis donasi...</option>';
   programSelect.innerHTML = '<option value="">Tanpa program / belum ditentukan</option>';
+  subProgramSelect.innerHTML = '<option value="">Pilih program terlebih dahulu</option>';
+  subProgramSelect.disabled = true;
   methodSelect.innerHTML = '<option value="">Memuat metode donasi...</option>';
   setDonationEntryMessage("", "");
 
@@ -3061,26 +3250,21 @@ function loadDonationFormOptions() {
       fillDonationSelect(typeSelect, result.jenisDonasi, "Pilih jenis donasi");
       fillDonationSelect(methodSelect, result.metode, "Pilih metode donasi");
 
-      programSelect.innerHTML = "";
-      const noProgram = document.createElement("option");
-      noProgram.value = "";
-      noProgram.textContent = "Tanpa program / belum ditentukan";
-      programSelect.appendChild(noProgram);
+      entryProgramMasterList = result.program || [];
+      populateUniqueProgramDropdown(
+        programSelect,
+        entryProgramMasterList,
+        "Tanpa program / belum ditentukan"
+      );
 
-      (result.program || []).forEach(function(item) {
-        const option = document.createElement("option");
-        option.value = item.id;
-        option.textContent = item.nama;
-        programSelect.appendChild(option);
-      });
-
+      updateEntrySubProgram();
       if (!result.jenisDonasi || result.jenisDonasi.length === 0 ||
           !result.metode || result.metode.length === 0) {
         setDonationEntryMessage(
           "Master jenis donasi atau metode pembayaran belum memiliki data aktif. Hubungi admin untuk melengkapinya.",
           "error"
         );
-      } else if (!result.program || result.program.length === 0) {
+      } else if (entryProgramMasterList.length === 0) {
         setDonationEntryMessage(
           "Pilihan program belum tersedia. Donasi tetap dapat dicatat tanpa memilih program.",
           "success"
@@ -3113,6 +3297,15 @@ function fillDonationSelect(select, items, placeholder) {
   });
 }
 
+function updateEntrySubProgram(targetProgramId) {
+  const programName = document.getElementById("entryDonationProgram").value;
+  const subSelect = document.getElementById("entryDonationSubProgram");
+  populateSubProgramDropdown(subSelect, entryProgramMasterList, programName, targetProgramId);
+}
+document.getElementById("entryDonationProgram").addEventListener("change", function() {
+  updateEntrySubProgram();
+});
+
 function updateDonationProofVisibility() {
   const methodSelect = document.getElementById("entryDonationMethod");
   const selectedText = methodSelect.options[methodSelect.selectedIndex]
@@ -3131,6 +3324,12 @@ document.getElementById("entryDonationMethod").addEventListener("change", update
 function resetDonationEntryForm() {
   document.getElementById("donationEntryForm").reset();
   document.getElementById("entryDonationDate").value = localDateString(new Date());
+  document.getElementById("entryDonorId").value = "";
+  document.getElementById("entryDonorName").value = "";
+  document.getElementById("entryDonorPhone").value = "";
+  document.getElementById("entryDonationProgram").value = "";
+  updateEntrySubProgram();
+  document.getElementById("entryDonorSuggestions").style.display = "none";
   updateDonationProofVisibility();
   setDonationEntryMessage("", "");
 }
@@ -3175,13 +3374,26 @@ document.getElementById("donationEntryForm").addEventListener("submit", async fu
     : "";
   const proofFile = document.getElementById("entryDonationProof").files[0];
 
+  const programName = document.getElementById("entryDonationProgram").value;
+  const subProgSelect = document.getElementById("entryDonationSubProgram");
+  const selectedSubOpt = subProgSelect.options[subProgSelect.selectedIndex];
+  const resolvedProgramId = subProgSelect.value || "";
+  const resolvedSubProgram = selectedSubOpt ? (selectedSubOpt.dataset.subProgram || "") : "";
+
+  if (programName && !resolvedProgramId) {
+    setDonationEntryMessage("Silakan pilih Sub Program terlebih dahulu.", "error");
+    return;
+  }
+
   const payload = {
     tanggal_donasi: document.getElementById("entryDonationDate").value,
     jenis_donatur: document.getElementById("entryDonorType").value,
+    donatur_id: document.getElementById("entryDonorId").value,
     nama_donatur: document.getElementById("entryDonorName").value.trim(),
     no_hp: document.getElementById("entryDonorPhone").value.trim(),
     jenis_donasi_id: document.getElementById("entryDonationType").value,
-    program_id: document.getElementById("entryDonationProgram").value,
+    program_id: resolvedProgramId,
+    sub_program: resolvedSubProgram,
     nominal: document.getElementById("entryDonationAmount").value,
     metode_id: methodSelect.value,
     metode_nama: selectedMethodName,
@@ -3189,7 +3401,7 @@ document.getElementById("donationEntryForm").addEventListener("submit", async fu
   };
 
   if (!payload.tanggal_donasi || !payload.jenis_donatur ||
-      !payload.nama_donatur || !payload.jenis_donasi_id ||
+      !payload.nama_donatur || !payload.donatur_id || !payload.jenis_donasi_id ||
       !payload.metode_id || Number(payload.nominal) <= 0) {
     setDonationEntryMessage("Mohon lengkapi seluruh kolom wajib dengan benar.", "error");
     return;
@@ -3239,6 +3451,7 @@ document.getElementById("donationEntryForm").addEventListener("submit", async fu
 document.getElementById("resetDonationEntryButton").addEventListener("click", function() {
   window.setTimeout(function() {
     document.getElementById("entryDonationDate").value = localDateString(new Date());
+    updateEntrySubProgram();
     updateDonationProofVisibility();
   }, 0);
 });
@@ -3281,7 +3494,7 @@ function renderProgramTable() {
   empty.style.display = "none"; wrap.style.display = "block";
   programList.forEach(function(item, index) {
     const tr = document.createElement("tr");
-    [index + 1, item.nama_program, item.kategori_program, item.deskripsi || "-"].forEach(function(value) {
+    [index + 1, item.nama_program, item.sub_program || "-", item.kategori_program, item.deskripsi || "-"].forEach(function(value) {
       const td = document.createElement("td"); td.textContent = value; tr.appendChild(td);
     });
     const statusTd = document.createElement("td");
@@ -3296,6 +3509,7 @@ function editProgramForm(id) {
   if (!item) return;
   document.getElementById("programId").value = item.program_id;
   document.getElementById("programName").value = item.nama_program || "";
+  document.getElementById("programSubProgram").value = item.sub_program || "";
   document.getElementById("programCategory").value = item.kategori_program || "";
   document.getElementById("programDescription").value = item.deskripsi || "";
   document.getElementById("programStatus").value = item.status || "AKTIF";
@@ -3319,6 +3533,7 @@ function submitProgram(event) {
   const payload = {
     program_id: id,
     nama_program: document.getElementById("programName").value.trim(),
+    sub_program: document.getElementById("programSubProgram").value.trim(),
     kategori_program: document.getElementById("programCategory").value.trim(),
     deskripsi: document.getElementById("programDescription").value.trim(),
     status: document.getElementById("programStatus").value
@@ -3341,11 +3556,37 @@ function submitProgram(event) {
 // ==========================================
 let donorList = [];
 let donorSearchTimer = null;
+let donorProgramMasterList = [];
 
 function setDonorMessage(id, message, type) {
   const box = document.getElementById(id); box.textContent = message || "";
   box.className = "donor-message" + (message ? " " + type : "");
 }
+
+function loadDonorProgramOptions() {
+  const select = document.getElementById("donorProgram");
+  const subSelect = document.getElementById("donorSubProgram");
+  if (!select || !currentToken) return;
+  google.script.run.withSuccessHandler(function(result) {
+    if (!result || !result.success) return;
+    donorProgramMasterList = result.data || [];
+    populateUniqueProgramDropdown(select, donorProgramMasterList, "Pilih program");
+    populateSubProgramDropdown(subSelect, donorProgramMasterList, "");
+  }).getActivePrograms(currentToken);
+}
+
+document.getElementById("donorProgram").addEventListener("change", function() {
+  const subSelect = document.getElementById("donorSubProgram");
+  populateSubProgramDropdown(subSelect, donorProgramMasterList, this.value);
+});
+
+document.getElementById("resetDonorFormButton").addEventListener("click", function() {
+  window.setTimeout(function() {
+    const subSelect = document.getElementById("donorSubProgram");
+    populateSubProgramDropdown(subSelect, donorProgramMasterList, "");
+    setDonorMessage("donorFormMessage", "", "");
+  }, 0);
+});
 
 function loadDonors() {
   if (!currentToken || !currentUser) return;
@@ -3365,21 +3606,107 @@ function loadDonors() {
 }
 
 function renderDonorTable() {
+  const head = document.getElementById("donorTableHead");
   const body = document.getElementById("donorTableBody");
   const wrap = document.getElementById("donorTableWrap");
   const empty = document.getElementById("donorEmpty");
+  const isAdmin = currentUser && currentUser.role === "ADMIN";
+
+  if (head) {
+    head.innerHTML = isAdmin
+      ? "<tr><th>NO</th><th>PANGGILAN</th><th>NAMA DONATUR</th><th>WHATSAPP</th><th>PROGRAM</th><th>SUB PROGRAM</th><th>ALAMAT</th><th>PENGELOLA</th><th>TANGGAL BERGABUNG</th></tr>"
+      : "<tr><th>NO</th><th>PANGGILAN</th><th>NAMA DONATUR</th><th>WHATSAPP</th><th>PROGRAM</th><th>SUB PROGRAM</th><th>ALAMAT</th><th>TANGGAL BERGABUNG</th></tr>";
+  }
+
   body.innerHTML = "";
-  if (!donorList.length) { wrap.style.display = "none"; empty.style.display = "block"; empty.textContent = "Tidak ada data donatur yang sesuai."; return; }
-  empty.style.display = "none"; wrap.style.display = "block";
+  if (!donorList.length) {
+    wrap.style.display = "none";
+    empty.style.display = "block";
+    empty.textContent = "Tidak ada data donatur yang sesuai.";
+    return;
+  }
+
+  empty.style.display = "none";
+  wrap.style.display = "block";
   donorList.forEach(function(item, index) {
     const tr = document.createElement("tr");
     const date = item.tanggal_bergabung ? new Date(item.tanggal_bergabung).toLocaleDateString("id-ID") : "-";
-    [index + 1, item.nama || "-", item.no_hp || "-", item.email || "-", item.alamat || "-", date].forEach(function(value) {
-      const td = document.createElement("td"); td.textContent = value; tr.appendChild(td);
+    const cells = [
+      index + 1,
+      item.panggilan || "-",
+      item.nama || "-",
+      item.no_hp || "-",
+      item.nama_program || "-",
+      item.sub_program || "-",
+      item.alamat || "-"
+    ];
+    if (isAdmin) {
+      cells.push(item.nama_pengelola || "-");
+    }
+    cells.push(date);
+
+    cells.forEach(function(value) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
     });
     body.appendChild(tr);
   });
 }
+
+// Pencarian dan pemilihan donatur pada Entry Donasi
+let entryDonorSearchTimer = null;
+function searchEntryDonors() {
+  const input = document.getElementById("entryDonorName");
+  const box = document.getElementById("entryDonorSuggestions");
+  const keyword = input.value.trim();
+  document.getElementById("entryDonorId").value = "";
+  if (keyword.length < 2) { box.style.display = "none"; box.innerHTML = ""; return; }
+  google.script.run.withSuccessHandler(function(result) {
+    box.innerHTML = "";
+    if (!result || !result.success || !(result.data || []).length) {
+      box.innerHTML = '<div class="donor-suggestion-item">Donatur tidak ditemukan. Tambahkan melalui menu Data Donatur.</div>';
+      box.style.display = "block";
+      return;
+    }
+    result.data.slice(0,12).forEach(function(donor) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "donor-suggestion-item";
+      item.innerHTML = "";
+      const title = document.createElement("span");
+      title.textContent = (donor.panggilan ? donor.panggilan + " " : "") + donor.nama;
+      const detail = document.createElement("small");
+      detail.textContent = (donor.no_hp || "Tanpa nomor WhatsApp") +
+        (donor.nama_program ? " • " + donor.nama_program : "") +
+        (donor.sub_program ? " / " + donor.sub_program : "");
+      item.appendChild(title); item.appendChild(detail);
+      item.addEventListener("click", function() {
+        document.getElementById("entryDonorId").value = donor.donatur_id;
+        document.getElementById("entryDonorName").value = (donor.panggilan ? donor.panggilan + " " : "") + donor.nama;
+        document.getElementById("entryDonorPhone").value = donor.no_hp || "";
+        const programSelect = document.getElementById("entryDonationProgram");
+        programSelect.value = donor.nama_program || "";
+        updateEntrySubProgram(donor.program_id);
+        box.style.display = "none";
+      });
+      box.appendChild(item);
+    });
+    box.style.display = "block";
+  }).withFailureHandler(function(err) {
+    box.innerHTML = '<div class="donor-suggestion-item">Pencarian gagal: ' + (err.message || "Kesalahan") + '</div>';
+    box.style.display = "block";
+  }).getDonors(currentToken, keyword);
+}
+document.getElementById("entryDonorName").addEventListener("input", function() {
+  document.getElementById("entryDonorId").value = "";
+  clearTimeout(entryDonorSearchTimer);
+  entryDonorSearchTimer = setTimeout(searchEntryDonors, 250);
+});
+document.addEventListener("click", function(event) {
+  const box = document.getElementById("entryDonorSuggestions");
+  if (!box.contains(event.target) && event.target.id !== "entryDonorName") box.style.display = "none";
+});
 
 document.getElementById("donorSearch").addEventListener("input", function() {
   clearTimeout(donorSearchTimer);
@@ -3391,18 +3718,34 @@ document.getElementById("donorForm").addEventListener("submit", function(event) 
   if (!currentToken || !currentUser || currentUser.role !== "USER") {
     setDonorMessage("donorFormMessage", "Hanya USER yang dapat menambahkan donatur.", "error"); return;
   }
+
+  const programName = document.getElementById("donorProgram").value;
+  const subSelect = document.getElementById("donorSubProgram");
+  const selectedSubOpt = subSelect.options[subSelect.selectedIndex];
+  const resolvedProgramId = subSelect.value || "";
+  const resolvedSubProgram = selectedSubOpt ? (selectedSubOpt.dataset.subProgram || "") : "";
+
+  if (programName && !resolvedProgramId) {
+    setDonorMessage("donorFormMessage", "Silakan pilih Sub Program terlebih dahulu.", "error");
+    return;
+  }
+
   const payload = {
     nama: document.getElementById("donorName").value.trim(),
+    panggilan: document.getElementById("donorPanggilan").value,
     no_hp: document.getElementById("donorPhone").value.trim(),
-    email: document.getElementById("donorEmail").value.trim(),
+    program_id: resolvedProgramId,
+    sub_program: resolvedSubProgram,
     alamat: document.getElementById("donorAddress").value.trim()
   };
+
   const button = document.getElementById("donorSubmitButton");
   button.disabled = true; button.textContent = "MENYIMPAN...";
   google.script.run.withSuccessHandler(function(result) {
     button.disabled = false; button.textContent = "Simpan Donatur";
     if (!result || !result.success) { setDonorMessage("donorFormMessage", (result && result.message) || "Donatur gagal disimpan.", "error"); return; }
     document.getElementById("donorForm").reset();
+    populateSubProgramDropdown(subSelect, donorProgramMasterList, "");
     setDonorMessage("donorFormMessage", result.message || "Donatur berhasil ditambahkan.", "success");
     loadDonors();
   }).withFailureHandler(function(error) {

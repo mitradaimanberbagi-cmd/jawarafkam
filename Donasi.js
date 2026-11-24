@@ -232,232 +232,133 @@ function formatDonationDateTime_(value) {
  * Akses hanya untuk USER.
  */
 function getDonationFormOptions(token) {
-  const user = validateSession(token);
-  if (!user || user.role !== "USER") {
-    throw new Error("Fitur ini hanya untuk akun da'i.");
+  const user=validateSession(token);
+  if(!user||user.role!=="USER") throw new Error("Fitur ini hanya untuk akun da'i.");
+  const db=getDatabase();
+  function getActiveOptions(sheetName,idColumn,nameColumn) {
+    const sh=db.getSheetByName(sheetName);
+    if(!sh||sh.getLastRow()<2) return [];
+    const values=sh.getDataRange().getValues(), headers=values[0].map(function(v){return String(v).trim().toLowerCase();});
+    const idIndex=headers.indexOf(idColumn), nameIndex=headers.indexOf(nameColumn), statusIndex=headers.indexOf("status");
+    if(idIndex<0||nameIndex<0||statusIndex<0) throw new Error("Struktur sheet "+sheetName+" tidak sesuai.");
+    return values.slice(1).filter(function(r){return String(r[statusIndex]).toUpperCase()==="AKTIF";})
+      .map(function(r){return {id:String(r[idIndex]),nama:String(r[nameIndex])};});
   }
-
-  const db = getDatabase();
-
-  function getActiveOptions(sheetName, idColumn, nameColumn) {
-    const sh = db.getSheetByName(sheetName);
-    if (!sh || sh.getLastRow() < 2) return [];
-    const values = sh.getDataRange().getValues();
-    const headers = values[0];
-    const idIndex = headers.indexOf(idColumn);
-    const nameIndex = headers.indexOf(nameColumn);
-    const statusIndex = headers.indexOf("status");
-    if (idIndex < 0 || nameIndex < 0 || statusIndex < 0) {
-      throw new Error("Struktur sheet " + sheetName + " tidak sesuai.");
-    }
-    return values.slice(1)
-      .filter(function(row) {
-        return String(row[statusIndex]).toUpperCase() === "AKTIF";
-      })
-      .map(function(row) {
-        return { id: String(row[idIndex]), nama: String(row[nameIndex]) };
-      });
-  }
-
-  // Hanya dua metode donasi yang diperbolehkan pada formulir.
-  const allowedMethodNames = ["tunai", "transfer bank"];
-  const allMethods = getActiveOptions("MASTER_METODE", "metode_id", "nama_metode");
-  const allowedMethods = allMethods.filter(function(item) {
-    return allowedMethodNames.includes(String(item.nama).trim().toLowerCase());
-  });
-
+  const methods=getActiveOptions("MASTER_METODE","metode_id","nama_metode")
+    .filter(function(x){return ["tunai","transfer bank"].includes(x.nama.trim().toLowerCase());});
+  const programsResult=getProgramRows_(), pm=programsResult.map;
+  const programs=programsResult.values.filter(function(r){return String(r[pm.status]).toUpperCase()==="AKTIF";})
+    .map(function(r){return {id:String(r[pm.program_id]),nama:String(r[pm.nama_program]),sub_program:String(r[pm.sub_program]||"")};});
   return {
-    success: true,
-    jenisDonasi: getActiveOptions(
-      "MASTER_JENIS_DONASI", "jenis_donasi_id", "nama_jenis"
-    ),
-    program: getActiveOptions(
-      "MASTER_PROGRAM", "program_id", "nama_program"
-    ),
-    metode: allowedMethods
+    success:true,
+    jenisDonasi:getActiveOptions("MASTER_JENIS_DONASI","jenis_donasi_id","nama_jenis"),
+    program:programs,
+    metode:methods
   };
 }
 
-/**
- * Memastikan suatu ID tersedia dan aktif pada sheet master.
- */
-function isActiveDonationMaster_(sheet, idColumn, id) {
-  if (!id) return false;
-  if (!sheet || sheet.getLastRow() < 2) return false;
-
-  const rows = sheet.getDataRange().getValues();
-  const headers = rows[0];
-
-  const idIndex = headers.indexOf(idColumn);
-  const statusIndex = headers.indexOf("status");
-
-  if (idIndex < 0 || statusIndex < 0) {
-    throw new Error("Struktur sheet master tidak sesuai.");
-  }
-
-  return rows.slice(1).some(function(row) {
-    return String(row[idIndex]) === String(id) &&
-      String(row[statusIndex]).toUpperCase() === "AKTIF";
-  });
+function isActiveDonationMaster_(sheet,idColumn,id) {
+  if(!id) return false;
+  if(!sheet||sheet.getLastRow()<2) return false;
+  const rows=sheet.getDataRange().getValues(), headers=rows[0].map(function(v){return String(v).trim().toLowerCase();});
+  const idIndex=headers.indexOf(idColumn), statusIndex=headers.indexOf("status");
+  if(idIndex<0||statusIndex<0) throw new Error("Struktur sheet master tidak sesuai.");
+  return rows.slice(1).some(function(r){return String(r[idIndex])===String(id)&&String(r[statusIndex]).toUpperCase()==="AKTIF";});
 }
 
+function createDonationEntry(token,payload) {
+  const user=validateSession(token);
+  if(!user||user.role!=="USER") throw new Error("Hanya akun da'i yang dapat memasukkan donasi.");
+  payload=payload||{};
+  const tanggal=String(payload.tanggal_donasi||"").trim();
+  const donaturId=String(payload.donatur_id||"").trim();
+  const jenisDonatur=String(payload.jenis_donatur||"").trim();
+  const jenisDonasiId=String(payload.jenis_donasi_id||"").trim();
+  let programId=String(payload.program_id||"").trim();
+  let subProgram=String(payload.sub_program||"").trim();
+  const metodeId=String(payload.metode_id||"").trim();
+  const keterangan=String(payload.keterangan||"").trim();
+  const nominal=Number(payload.nominal);
 
-/**
- * Menyimpan entry donasi dari akun da'i.
- *
- * Data ditulis ke:
- * - DONATUR (jika donatur belum ditemukan)
- * - DONASI
- */
-function createDonationEntry(token, payload) {
-  const user = validateSession(token);
-  if (!user || user.role !== "USER") {
-    throw new Error("Hanya akun da'i yang dapat memasukkan donasi.");
-  }
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(tanggal)) throw new Error("Tanggal donasi tidak valid.");
+  const p=tanggal.split("-").map(Number), tanggalDonasi=new Date(p[0],p[1]-1,p[2]);
+  if(tanggalDonasi.getFullYear()!==p[0]||tanggalDonasi.getMonth()!==p[1]-1||tanggalDonasi.getDate()!==p[2]) throw new Error("Tanggal donasi tidak valid.");
+  if(!donaturId) throw new Error("Pilih donatur dari daftar pencarian.");
+  if(!["INDIVIDU","LEMBAGA"].includes(jenisDonatur)) throw new Error("Jenis donatur tidak valid.");
+  if(!jenisDonasiId||!metodeId) throw new Error("Jenis donasi dan metode donasi wajib dipilih.");
+  if(!Number.isFinite(nominal)||nominal<=0) throw new Error("Nominal donasi harus lebih besar dari nol.");
 
-  payload = payload || {};
-  const tanggal = String(payload.tanggal_donasi || "").trim();
-  const namaDonatur = String(payload.nama_donatur || "").trim();
-  const noHp = String(payload.no_hp || "").trim();
-  const jenisDonatur = String(payload.jenis_donatur || "").trim();
-  const jenisDonasiId = String(payload.jenis_donasi_id || "").trim();
-  const programId = String(payload.program_id || "").trim();
-  const metodeId = String(payload.metode_id || "").trim();
-  const keterangan = String(payload.keterangan || "").trim();
-  const nominal = Number(payload.nominal);
+  const db=getDatabase();
+  const donorSheet=db.getSheetByName("DONATUR"), donationSheet=db.getSheetByName("DONASI");
+  const jenisSheet=db.getSheetByName("MASTER_JENIS_DONASI"), metodeSheet=db.getSheetByName("MASTER_METODE");
+  if(!donorSheet||!donationSheet||!jenisSheet||!metodeSheet) throw new Error("Salah satu sheet database tidak ditemukan.");
+  const dm=getDonorColumnMap_(donorSheet);
+  const donorRows=donorSheet.getDataRange().getValues();
+  let donor=null;
+  for(let i=1;i<donorRows.length;i++) if(String(donorRows[i][dm.donatur_id])===donaturId){donor=donorRows[i];break;}
+  if(!donor) throw new Error("Data donatur yang dipilih tidak ditemukan. Muat ulang daftar donatur.");
+  const namaDonatur=String(donor[dm.nama]||"");
+  const noHp=String(donor[dm.no_hp]||"");
+  const donorProgram=String(donor[dm.program_id]||"").trim();
+  const donorSubProgram=String(donor[dm.sub_program]||"").trim();
+  if(!programId) programId=donorProgram;
+  if(!subProgram) subProgram=donorSubProgram;
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal)) {
-    throw new Error("Tanggal donasi tidak valid.");
-  }
-  const parts = tanggal.split("-").map(Number);
-  const tanggalDonasi = new Date(parts[0], parts[1] - 1, parts[2]);
-  if (tanggalDonasi.getFullYear() !== parts[0] ||
-      tanggalDonasi.getMonth() !== parts[1] - 1 ||
-      tanggalDonasi.getDate() !== parts[2]) {
-    throw new Error("Tanggal donasi tidak valid.");
-  }
-  if (!namaDonatur) throw new Error("Nama donatur wajib diisi.");
-  if (!["INDIVIDU", "LEMBAGA"].includes(jenisDonatur)) {
-    throw new Error("Jenis donatur tidak valid.");
-  }
-  if (!jenisDonasiId || !metodeId) {
-    throw new Error("Jenis donasi dan metode donasi wajib dipilih.");
-  }
-  if (!Number.isFinite(nominal) || nominal <= 0) {
-    throw new Error("Nominal donasi harus lebih besar dari nol.");
-  }
+  if(!isActiveDonationMaster_(jenisSheet,"jenis_donasi_id",jenisDonasiId)) throw new Error("Jenis donasi tidak ditemukan atau tidak aktif.");
+  if(!isActiveDonationMaster_(metodeSheet,"metode_id",metodeId)) throw new Error("Metode donasi tidak ditemukan atau tidak aktif.");
+  const methodRows=metodeSheet.getDataRange().getValues(), mh=methodRows[0].map(function(v){return String(v).trim().toLowerCase();});
+  const mi=mh.indexOf("metode_id"), mn=mh.indexOf("nama_metode");
+  const methodRow=methodRows.slice(1).find(function(r){return String(r[mi])===metodeId;});
+  if(!methodRow) throw new Error("Metode donasi tidak ditemukan.");
+  const methodName=String(methodRow[mn]||"").trim().toLowerCase();
+  if(!["tunai","transfer bank"].includes(methodName)) throw new Error("Metode donasi hanya boleh Tunai atau Transfer Bank.");
 
-  const db = getDatabase();
-  const jenisSheet = db.getSheetByName("MASTER_JENIS_DONASI");
-  const metodeSheet = db.getSheetByName("MASTER_METODE");
-  const programSheet = db.getSheetByName("MASTER_PROGRAM");
-  const donorSheet = db.getSheetByName("DONATUR");
-  const donationSheet = db.getSheetByName("DONASI");
-  if (!jenisSheet || !metodeSheet || !programSheet || !donorSheet || !donationSheet) {
-    throw new Error("Salah satu sheet database tidak ditemukan.");
-  }
-
-  if (!isActiveDonationMaster_(jenisSheet, "jenis_donasi_id", jenisDonasiId)) {
-    throw new Error("Jenis donasi tidak ditemukan atau tidak aktif.");
-  }
-  if (!isActiveDonationMaster_(metodeSheet, "metode_id", metodeId)) {
-    throw new Error("Metode donasi tidak ditemukan atau tidak aktif.");
-  }
-  if (programId && !isActiveDonationMaster_(programSheet, "program_id", programId)) {
-    throw new Error("Program tidak ditemukan atau tidak aktif.");
+  let programName="";
+  if(programId) {
+    const pr=getProgramRows_(), pm=pr.map;
+    const selected=pr.values.find(function(r){return String(r[pm.program_id])===programId&&String(r[pm.status]).toUpperCase()==="AKTIF";});
+    if(!selected) throw new Error("Program tidak ditemukan atau tidak aktif.");
+    programName=String(selected[pm.nama_program]||"");
+    if(!subProgram) subProgram=String(selected[pm.sub_program]||"");
   }
 
-  // Pastikan ID metode memang Tunai atau Transfer Bank.
-  const methodRows = metodeSheet.getDataRange().getValues();
-  const methodHeaders = methodRows[0];
-  const methodIdIndex = methodHeaders.indexOf("metode_id");
-  const methodNameIndex = methodHeaders.indexOf("nama_metode");
-  const methodRow = methodRows.slice(1).find(function(row) {
-    return String(row[methodIdIndex]) === metodeId;
-  });
-  if (!methodRow) throw new Error("Metode donasi tidak ditemukan.");
-  const methodName = String(methodRow[methodNameIndex] || "").trim().toLowerCase();
-  if (!["tunai", "transfer bank"].includes(methodName)) {
-    throw new Error("Metode donasi hanya boleh Tunai atau Transfer Bank.");
-  }
-
-  const proof = payload.bukti_transfer || null;
-  if (methodName === "transfer bank" && !proof) {
-    throw new Error("Bukti transfer wajib diunggah untuk metode Transfer Bank.");
-  }
-
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  let uploadedFile = null;
+  const proof=payload.bukti_transfer||null;
+  if(methodName==="transfer bank"&&!proof) throw new Error("Bukti transfer wajib diunggah untuk metode Transfer Bank.");
+  const lock=LockService.getScriptLock(); lock.waitLock(10000);
+  let uploadedFile=null;
   try {
-    let proofFileId = "";
-    if (proof) {
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-      const mimeType = String(proof.mimeType || "").toLowerCase();
-      const fileName = String(proof.fileName || "bukti-transfer").replace(/[\\/:*?"<>|]/g, "_");
-      const base64 = String(proof.base64 || "");
-      if (!allowedTypes.includes(mimeType)) {
-        throw new Error("Format bukti transfer harus JPG, PNG, WEBP, atau PDF.");
-      }
-      if (!base64) throw new Error("File bukti transfer tidak terbaca.");
-      const bytes = Utilities.base64Decode(base64);
-      if (bytes.length > 5 * 1024 * 1024) {
-        throw new Error("Ukuran bukti transfer maksimal 5 MB.");
-      }
-      const blob = Utilities.newBlob(bytes, mimeType, fileName);
-      const folderId = PropertiesService.getScriptProperties().getProperty("JAWARA_UPLOAD_FOLDER_ID");
-      uploadedFile = folderId
-        ? DriveApp.getFolderById(folderId).createFile(blob)
-        : DriveApp.createFile(blob);
-      proofFileId = uploadedFile.getId();
+    let proofFileId="";
+    if(proof) {
+      const allowed=["image/jpeg","image/png","image/webp","application/pdf"];
+      const mime=String(proof.mimeType||"").toLowerCase();
+      const name=String(proof.fileName||"bukti-transfer").replace(/[\\/:*?"<>|]/g,"_");
+      const base64=String(proof.base64||"");
+      if(!allowed.includes(mime)) throw new Error("Format bukti transfer harus JPG, PNG, WEBP, atau PDF.");
+      if(!base64) throw new Error("File bukti transfer tidak terbaca.");
+      const bytes=Utilities.base64Decode(base64);
+      if(bytes.length>5*1024*1024) throw new Error("Ukuran bukti transfer maksimal 5 MB.");
+      const blob=Utilities.newBlob(bytes,mime,name);
+      const folderId=PropertiesService.getScriptProperties().getProperty("JAWARA_UPLOAD_FOLDER_ID");
+      uploadedFile=folderId?DriveApp.getFolderById(folderId).createFile(blob):DriveApp.createFile(blob);
+      proofFileId=uploadedFile.getId();
     }
 
-    // Cari donor berdasarkan nomor HP; jika tidak ditemukan, buat catatan donor.
-    let donaturId = "";
-    if (noHp && donorSheet.getLastRow() >= 2) {
-      const donorData = donorSheet.getDataRange().getValues();
-      const donorHeaders = donorData[0];
-      const phoneIndex = donorHeaders.indexOf("no_hp");
-      const donorIdIndex = donorHeaders.indexOf("donatur_id");
-      if (phoneIndex >= 0 && donorIdIndex >= 0) {
-        for (let i = 1; i < donorData.length; i++) {
-          const savedPhone = String(donorData[i][phoneIndex] || "").replace(/\D/g, "");
-          if (savedPhone && savedPhone === noHp.replace(/\D/g, "")) {
-            donaturId = String(donorData[i][donorIdIndex]);
-            break;
-          }
-        }
-      }
-    }
-
-    if (!donaturId) {
-      donaturId = "DNR-" + Utilities.getUuid().slice(0, 8).toUpperCase();
-      donorSheet.appendRow([
-        donaturId, namaDonatur, noHp, "", "", tanggalDonasi, "ENTRY_DA'I", new Date()
-      ]);
-    }
-
-    const now = new Date();
-    const donasiId = "DNS-" + Utilities.getUuid().slice(0, 8).toUpperCase();
-    donationSheet.appendRow([
-      donasiId, tanggalDonasi, now, user.user_id, donaturId,
-      namaDonatur, noHp, jenisDonatur, jenisDonasiId, programId,
-      nominal, metodeId, keterangan, proofFileId, "TERCATAT",
-      now, "", "", ""
-    ]);
-
-    return {
-      success: true,
-      message: "Donasi berhasil disimpan.",
-      donasi_id: donasiId,
-      bukti_donasi_file_id: proofFileId
-    };
-  } catch (error) {
-    if (uploadedFile) {
-      try { uploadedFile.setTrashed(true); } catch (cleanupError) {}
-    }
+    const now=new Date(), donasiId="DNS-"+Utilities.getUuid().slice(0,8).toUpperCase();
+    const headers=donationSheet.getRange(1,1,1,donationSheet.getLastColumn()).getValues()[0]
+      .map(function(v){return String(v).trim().toLowerCase();});
+    const row=new Array(donationSheet.getLastColumn()).fill("");
+    function put(header,value){const index=headers.indexOf(header);if(index<0)throw new Error("Kolom "+header+" belum tersedia pada sheet DONASI.");row[index]=value;}
+    put("donasi_id",donasiId); put("tanggal_donasi",tanggalDonasi); put("waktu_input",now);
+    put("user_id",user.user_id); put("donatur_id",donaturId); put("nama_donatur_snapshot",namaDonatur);
+    put("no_hp_snapshot",noHp); put("jenis_donatur",jenisDonatur); put("jenis_donasi_id",jenisDonasiId);
+    put("program_id",programId); put("nominal",nominal); put("metode_id",metodeId);
+    put("keterangan",keterangan); put("bukti_donasi_file_id",proofFileId); put("status_transaksi","TERCATAT");
+    put("created_at",now); put("cancelled_at",""); put("cancelled_by",""); put("cancel_reason","");
+    if(headers.indexOf("sub_program")>=0) put("sub_program",subProgram);
+    donationSheet.appendRow(row);
+    return {success:true,message:"Donasi berhasil disimpan.",donasi_id:donasiId,bukti_donasi_file_id:proofFileId,nama_program:programName,sub_program:subProgram};
+  } catch(error) {
+    if(uploadedFile){try{uploadedFile.setTrashed(true);}catch(cleanupError){}}
     throw error;
-  } finally {
-    lock.releaseLock();
-  }
+  } finally {lock.releaseLock();}
 }
